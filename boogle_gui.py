@@ -14,7 +14,7 @@ BUTTON_STYLE = {"font": ("Courier", 30),
 
 
 class BoogleGUI:
-    __buttons = {}
+    __buttons = [[None] * BOARD_SIZE for row in range(BOARD_SIZE)]
 
     def __init__(self):
         root = tki.Tk()
@@ -46,7 +46,7 @@ class BoogleGUI:
         button = tki.Button(self.__board, text=button_char, **BUTTON_STYLE)
         button.grid(row=row, column=col, rowspan=1, columnspan=1,
                     sticky=tki.NSEW)
-        self.__buttons[button_char] = button
+        self.__buttons[row][col] = button
 
         return button
 
