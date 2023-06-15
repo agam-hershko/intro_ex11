@@ -1,6 +1,7 @@
 # Imports
 import tkinter as tk
 from boggle_board_randomizer import randomize_board, LETTERS
+from file_handler import create_set
 
 # Constants
 BOARD_ROWS = 4
@@ -13,6 +14,7 @@ BUTTON_STYLE = {"font": ("Courier", 25),
                 "relief": tk.RAISED,
                 "bg": REGULAR_COLOR,
                 "activebackground": BUTTON_ACTIVE_COLOR}
+LABEL_STYLE = {"font": ("Courier", 15), "bg": REGULAR_COLOR}
 
 
 class BoogleGUI:
@@ -33,7 +35,7 @@ class BoogleGUI:
 
         # Creating board frame which contains buttons
         self.__board = tk.Frame(self.__outer_frame)
-        self.__board.place(relheight=0.6, relwidth=0.6, relx=0.2, rely=0.3)
+        self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
         self.__configure_board()
 
         # Creating 2D list: board of letters buttons: initialize with None
@@ -42,8 +44,22 @@ class BoogleGUI:
 
         # Creating display label of word
         self.__word_display = tk.Label(self.__outer_frame, **BUTTON_STYLE)
-        self.__word_display.place(relheight=0.05, relwidth=0.2, relx=0.4,
+        self.__word_display.place(relheight=0.05, relwidth=0.2, relx=0.3,
                                   rely=0.1)
+
+        # Creating labels of score and total scores
+        self.__score = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__score.config(text="score:0")
+        self.__score.place(relheight=0.05, relwidth=0.2, relx=0.47, rely=0.1)
+        self.__total_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__total_score.config(text="total score:0")
+        self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
+                                 rely=0.05)
+
+        # Creating list of founded words
+        self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
+        self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
+                                rely=0.3)
 
         # Creates game objects
         self.__letters_in_word = []
@@ -87,6 +103,12 @@ class BoogleGUI:
                     self.__letters_in_board[row][col].config(
                         state='normal')
 
+    def __get_word_from_letters(self):
+        """The function takes a list of letters buttons and returns word"""
+        letters = map(lambda letter: letter.cget("text"),
+                      self.__letters_in_word)
+        return ''.join(letters)
+
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
         """The function gets location of button in board and its content and
@@ -107,9 +129,7 @@ class BoogleGUI:
             # Getting button's letter, updating the list of word buttons
             # and displaying it
             self.__letters_in_word.append(button)
-            letters = map(lambda letter: letter.cget("text"),
-                          self.__letters_in_word)
-            current_word = ''.join(letters)
+            current_word = self.__get_word_from_letters()
             self.__word_display.config(text=current_word)
 
         button.bind("<Button-1>", click_on_letter)  # Click on letter button
@@ -145,7 +165,7 @@ class BoogleGUI:
     def __create_start_button(self):
         """The function creates start button """
         button = tk.Button(self.__outer_frame, text="START", **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.2, rely=0.2)
+        button.place(relheight=0.05, relwidth=0.1, relx=0.1, rely=0.2)
 
         def click_on_start(event):
             self.__clear_word()
@@ -153,6 +173,8 @@ class BoogleGUI:
 
             if button.cget("text") == "START":
                 button.config(text="RESET")
+
+            self.__score.config(text="score: 0")
 
         # Handling events
         button.bind("<Button-1>", click_on_start)  # Click on start button
@@ -164,10 +186,23 @@ class BoogleGUI:
     def __create_submit_button(self):
         """The function creates submit button """
         button = tk.Button(self.__outer_frame, text="SUBMIT", **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.45, rely=0.2)
+        button.place(relheight=0.05, relwidth=0.1, relx=0.35, rely=0.2)
 
         def click_on_submit(event):
-            return None
+            current_word = self.__get_word_from_letters()
+            words = create_set("boggle_dict.txt")
+
+            if current_word in words:
+                current_score = len(current_word) ** 2
+                score = self.__score.cget("text").split(":")[1]
+                self.__score.config(
+                    text="score: " + str((current_score + int(score))))
+                self.__total_score.config(
+                    text="total score: " + str((current_score + int(score))))
+
+                self.__words_list.insert(0, current_word)
+
+            self.__clear_word()
 
         # Handling events
         button.bind("<Button-1>", click_on_submit)  # Click on submit
@@ -180,7 +215,7 @@ class BoogleGUI:
         """The function creates submit button """
         button = tk.Button(self.__outer_frame, text="CLEAR",
                            **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.7, rely=0.2)
+        button.place(relheight=0.05, relwidth=0.1, relx=0.6, rely=0.2)
 
         def click_on_clear(event):
             self.__clear_word()
