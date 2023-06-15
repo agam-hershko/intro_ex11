@@ -61,9 +61,15 @@ class BoogleGUI:
             self.__board.columnconfigure(col, weight=1)
 
     def __clear_word(self) -> None:
-        """The function clears the current word: display and letters list"""
+        """The function clears the current word: display and letters list
+         and removes letters marks"""
         self.__letters_in_word = []
         self.__word_display.config(text="")
+
+        # Remove all letters marks
+        for row in range(BOARD_ROWS):
+            for col in range(BOARD_COLS):
+                self.__letters_in_board[row][col].config(bg=REGULAR_COLOR)
 
     def __disable_click_on_invalid_letters(self, current_row: int,
                                            current_col: int) -> None:
@@ -77,10 +83,10 @@ class BoogleGUI:
                 if (row == current_row and col == current_col or
                         1 < abs(row - current_row) and
                         1 < abs(col - current_col)):
-                    self.__letters_in_board[row][col].configure(
+                    self.__letters_in_board[row][col].config(
                         state='disabled')
                 else:
-                    self.__letters_in_board[row][col].configure(
+                    self.__letters_in_board[row][col].config(
                         state='normal')
 
     def __create_letter_button(self, row: int, col: int,
@@ -110,9 +116,15 @@ class BoogleGUI:
 
         button.bind("<Button-1>", click_on_letter)  # Click on letter button
         button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
+                    lambda event: button.config(
+                        bg=BUTTON_HOVER_COLOR) if button.cget(
+                        "bg") != BUTTON_ACTIVE_COLOR else button.config(
+                        bg=BUTTON_ACTIVE_COLOR))
         # Leave widget area
-        button.bind("<Leave>", lambda event: button.config(bg=REGULAR_COLOR))
+        button.bind("<Leave>", lambda event: button.config(
+            bg=REGULAR_COLOR) if button.cget(
+            "bg") != BUTTON_ACTIVE_COLOR else button.config(
+            bg=BUTTON_ACTIVE_COLOR))
 
     def __create_empty_letters_buttons(self) -> None:
         """The function create empty buttons for preview before playing
@@ -142,7 +154,7 @@ class BoogleGUI:
             self.__create_letters_buttons()
 
             if button.cget("text") == "START":
-                button.configure(text="RESET")
+                button.config(text="RESET")
 
         # Handling events
         button.bind("<Button-1>", click_on_start)  # Click on start button
