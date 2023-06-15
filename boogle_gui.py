@@ -78,7 +78,7 @@ class BoogleGUI:
 
     def __clear_word(self) -> None:
         """The function clears the current word: display and letters list
-         and removes letters marks"""
+         and removes letters marks and activate all disabled buttons"""
         self.__letters_in_word = []
         self.__word_display.config(text="")
 
@@ -86,6 +86,7 @@ class BoogleGUI:
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 self.__letters_in_board[row][col].config(bg=REGULAR_COLOR)
+                self.__letters_in_board[row][col].config(state="normal")
 
     def __disable_click_on_invalid_letters(self, current_row: int,
                                            current_col: int) -> None:
@@ -109,6 +110,8 @@ class BoogleGUI:
                       self.__letters_in_word)
         return ''.join(letters)
 
+    ...
+
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
         """The function gets location of button in board and its content and
@@ -121,6 +124,10 @@ class BoogleGUI:
 
         # Handling events
         def click_on_letter(event):
+            # Ignore the click event if the button is disabled
+            if button['state'] == 'disabled':
+                return
+
             # Activate the click disabling only on board with letters
             if content:
                 self.__disable_click_on_invalid_letters(row, col)
