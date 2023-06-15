@@ -77,14 +77,12 @@ class BoogleGUI:
          not close buttons"""
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
-                if not self.__letters_in_board[row][col]:
-                    return None
-
-                if (row == current_row and col == current_col or
-                        1 < abs(row - current_row) and
-                        1 < abs(col - current_col)):
-                    self.__letters_in_board[row][col].config(
-                        state='disabled')
+                if ((row == current_row and col == current_col) or
+                        (1 < abs(row - current_row) or
+                         1 < abs(col - current_col)) or
+                        self.__letters_in_board[row][
+                            col] in self.__letters_in_word):
+                    self.__letters_in_board[row][col].config(state='disabled')
                 else:
                     self.__letters_in_board[row][col].config(
                         state='normal')
@@ -102,8 +100,8 @@ class BoogleGUI:
         # Handling events
         def click_on_letter(event):
             # Activate the click disabling only on board with letters
-            # if content and self.__letters_in_board[row][col]:
-            #     self.__disable_click_on_invalid_letters(row, col)
+            if content:
+                self.__disable_click_on_invalid_letters(row, col)
             button.config(bg=BUTTON_ACTIVE_COLOR)
 
             # Getting button's letter, updating the list of word buttons
