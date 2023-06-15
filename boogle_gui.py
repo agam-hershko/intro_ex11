@@ -18,8 +18,10 @@ LABEL_STYLE = {"font": ("Courier", 15), "bg": REGULAR_COLOR}
 
 
 class BoogleGUI:
-    """Class that implements gui of boogle game and has attributes of objects
-    on the screen"""
+    """
+    Class that implements gui of boogle game and has attributes of objects
+    on the screen
+    """
 
     def __init__(self):
         root = tk.Tk()
@@ -76,9 +78,11 @@ class BoogleGUI:
         for col in range(BOARD_ROWS):
             self.__board.columnconfigure(col, weight=1)
 
-    def __clear_word(self) -> None:
-        """The function clears the current word: display and letters list
-         and removes letters marks and activate all disabled buttons"""
+    def __clear_word_in_display(self) -> None:
+        """
+        The function clears the current word: display and letters list
+        and removes letters marks and activate all disabled buttons
+        """
         self.__letters_in_word = []
         self.__word_display.config(text="")
 
@@ -110,13 +114,13 @@ class BoogleGUI:
                       self.__letters_in_word)
         return ''.join(letters)
 
-    ...
-
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
-        """The function gets location of button in board and its content and
+        """
+        The function gets location of button in board and its content and
         creates letter button and appends it to GUI board (grid)
-        and buttons matrix"""
+        and buttons matrix
+        """
         button = tk.Button(self.__board, text=content, **BUTTON_STYLE)
         # Create grid: sticky "news" means locate in center (all direction)
         button.grid(row=row, column=col, sticky="news")
@@ -152,15 +156,19 @@ class BoogleGUI:
             bg=BUTTON_ACTIVE_COLOR))
 
     def __create_empty_letters_buttons(self) -> None:
-        """The function create empty buttons for preview before playing
-        and appends them to GUI"""
+        """
+        The function create empty buttons for preview before playing
+        and appends them to GUI
+        """
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 self.__create_letter_button(row, col)
 
     def __create_letters_buttons(self) -> None:
-        """The function create letters buttons with randomized letters
-        and appends them to GUI"""
+        """
+        The function create letters buttons with randomized letters
+        and appends them to GUI
+        """
         # Creating 2D list of random letters (using randomizer file)
         board = randomize_board(LETTERS)
 
@@ -179,14 +187,16 @@ class BoogleGUI:
         button.place(relheight=0.05, relwidth=0.1, relx=0.1, rely=0.2)
 
         def click_on_start(event):
-            self.__clear_word()
-            self.__create_letters_buttons()
-
+            # After start playing, change the button desc from start to reset
             if button.cget("text") == "START":
                 button.config(text="RESET")
 
-            self.__score.config(text="score: 0")
+            # Clear the display of word and words list
+            self.__clear_word_in_display()
             self.__reset_words_list()
+            self.__create_letters_buttons()  # Reset the board with letters
+            self.__score.config(
+                text="score: 0")  # Reset score for current game
 
         # Handling events
         button.bind("<Button-1>", click_on_start)  # Click on start button
@@ -204,21 +214,26 @@ class BoogleGUI:
             current_word = self.__get_word_from_letters()
             words = create_set("boggle_dict.txt")
 
+            # If word is valid (new valid word), update score and total score
             if current_word in words \
                     and current_word not in \
                     self.__words_list.get(0, "end"):  # If word not in list
                 current_score = len(current_word) ** 2
+                # Getting the score without the title
                 score = self.__score.cget("text").split(":")[1]
                 self.__score.config(
                     text="score: " + str((current_score + int(score))))
                 total_score = self.__total_score.cget("text").split(":")[1]
+                # Getting the total score without the title
                 self.__total_score.config(
                     text="total score: " + str(
                         (current_score + int(total_score))))
 
+                # Insert word to word list for display
                 self.__words_list.insert(0, current_word)
 
-            self.__clear_word()
+            # Clear data before next game
+            self.__clear_word_in_display()
 
         # Handling events
         button.bind("<Button-1>", click_on_submit)  # Click on submit
@@ -234,7 +249,7 @@ class BoogleGUI:
         button.place(relheight=0.05, relwidth=0.1, relx=0.6, rely=0.2)
 
         def click_on_clear(event):
-            self.__clear_word()
+            self.__clear_word_in_display()
 
         # Handling events
         button.bind("<Button-1>", click_on_clear)  # Click on submit
