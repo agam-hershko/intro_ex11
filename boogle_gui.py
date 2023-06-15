@@ -184,7 +184,7 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __create_submit_button(self):
-        """The function creates submit button """
+        """The function creates submit buttosn """
         button = tk.Button(self.__outer_frame, text="SUBMIT", **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.35, rely=0.2)
 
@@ -193,14 +193,16 @@ class BoogleGUI:
             words = create_set("boggle_dict.txt")
 
             if current_word in words:
-                current_score = len(current_word) ** 2
-                score = self.__score.cget("text").split(":")[1]
-                self.__score.config(
-                    text="score: " + str((current_score + int(score))))
-                self.__total_score.config(
-                    text="total score: " + str((current_score + int(score))))
+                if not self.__words_list.get(0, "end"):  # If word not in list
+                    current_score = len(current_word) ** 2
+                    score = self.__score.cget("text").split(":")[1]
+                    self.__score.config(
+                        text="score: " + str((current_score + int(score))))
+                    self.__total_score.config(
+                        text="total score: " + str(
+                            (current_score + int(score))))
 
-                self.__words_list.insert(0, current_word)
+                    self.__words_list.insert(0, current_word)
 
             self.__clear_word()
 
