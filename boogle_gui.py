@@ -162,6 +162,10 @@ class BoogleGUI:
             for col in range(BOARD_COLS):
                 self.__create_letter_button(row, col, board[row][col])
 
+    def __reset_words_list(self):
+        """The function resets the words list"""
+        self.__words_list.delete(0, tk.END)
+
     def __create_start_button(self):
         """The function creates start button """
         button = tk.Button(self.__outer_frame, text="START", **BUTTON_STYLE)
@@ -175,6 +179,7 @@ class BoogleGUI:
                 button.config(text="RESET")
 
             self.__score.config(text="score: 0")
+            self.__reset_words_list()
 
         # Handling events
         button.bind("<Button-1>", click_on_start)  # Click on start button
@@ -184,7 +189,7 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __create_submit_button(self):
-        """The function creates submit buttosn """
+        """The function creates submit button """
         button = tk.Button(self.__outer_frame, text="SUBMIT", **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.35, rely=0.2)
 
@@ -192,17 +197,19 @@ class BoogleGUI:
             current_word = self.__get_word_from_letters()
             words = create_set("boggle_dict.txt")
 
-            if current_word in words:
-                if not self.__words_list.get(0, "end"):  # If word not in list
-                    current_score = len(current_word) ** 2
-                    score = self.__score.cget("text").split(":")[1]
-                    self.__score.config(
-                        text="score: " + str((current_score + int(score))))
-                    self.__total_score.config(
-                        text="total score: " + str(
-                            (current_score + int(score))))
+            if current_word in words \
+                    and current_word not in \
+                    self.__words_list.get(0, "end"):  # If word not in list
+                current_score = len(current_word) ** 2
+                score = self.__score.cget("text").split(":")[1]
+                self.__score.config(
+                    text="score: " + str((current_score + int(score))))
+                total_score = self.__total_score.cget("text").split(":")[1]
+                self.__total_score.config(
+                    text="total score: " + str(
+                        (current_score + int(total_score))))
 
-                    self.__words_list.insert(0, current_word)
+                self.__words_list.insert(0, current_word)
 
             self.__clear_word()
 
