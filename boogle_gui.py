@@ -202,7 +202,7 @@ class BoogleGUI:
             self.__word_display.config(text=current_word)
 
         # Handling events
-        button.bind("<Button-1>", click_on_letter)
+        button.bind("<Button-1>", click_on_letter) # Click on submit
         # Get over button, change background if button is not clicked
         button.bind("<Enter>",
                     lambda event: button.config(
