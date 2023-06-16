@@ -20,8 +20,8 @@ LABEL_STYLE = {"font": ("Courier", 15), "bg": REGULAR_COLOR}
 
 
 class BoogleGUI:
-    """Class that implements gui of boogle game and has attributes of objects
-    on the screen"""
+    """ Class that implements gui of boogle game and has attributes of objects
+    on the screen """
 
     def __init__(self):
         root = tk.Tk()
@@ -77,7 +77,7 @@ class BoogleGUI:
         self.__create_clear_button()
 
     def __configure_board(self):
-        """The function Configures board frame (for letters buttons)"""
+        """ The function Configures board frame (for letters buttons) """
         for row in range(BOARD_ROWS):
             self.__board.rowconfigure(row, weight=1)
 
@@ -117,49 +117,92 @@ class BoogleGUI:
                     self.__letters_in_board[row][col].config(
                         state='normal')
 
+    def __able_clicks_around(self, current_row: int, current_col: int) -> None:
+        """
+        The function gets location of button and ables clicking on
+        buttons around: close buttons including the button itself
+        """
+        for row in range(BOARD_ROWS):
+            for col in range(BOARD_COLS):
+                if ((row == current_row and col == current_col) or
+                        (1 < abs(row - current_row) or
+                         1 < abs(col - current_col))):
+                    self.__letters_in_board[row][col].config(state='normal')
+
     def __get_word_from_letters(self):
-        """The function takes a list of letters buttons and returns word"""
+        """ The function takes a list of letters buttons and returns word """
         letters = map(lambda letter: letter.cget("text"),
                       self.__letters_in_word)
         return ''.join(letters)
 
     def __create_empty_button(self, row: int, col: int) -> None:
-        """The function gets location of button in board and
+        """
+        The function gets location of button in board and
         creates empty button and appends it to GUI board (grid)
-        and buttons matrix"""
+        and buttons matrix
+        """
         button = tk.Button(self.__board, **BUTTON_STYLE)
         button.config(state="disabled")
         # Grid: sticky "news" means locate in center (all direction)
         button.grid(row=row, column=col, sticky="news")
         self.__letters_in_board[row][col] = button
 
+    def __get_last_button_coors(self):
+        """
+        The function get the coordinates in board of the last button, which
+        holds the last letter on word
+        """
+        if not self.__letters_in_word:
+            return None
+
+        last_button = self.__letters_in_word[-1]
+
+        for row in range(BOARD_ROWS):
+            for col in range(BOARD_COLS):
+                if last_button == self.__letters_in_board[row][col]:
+                    return row, col
+
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
-        """The function gets location of button in board and its content and
+        """
+        The function gets location of button in board and its content and
         creates letter button and appends it to GUI board (grid)
-        and buttons matrix"""
+        and buttons matrix
+        """
         button = tk.Button(self.__board, text=content, **BUTTON_STYLE)
         # Create grid: sticky "news" means locate in center (all direction)
         button.grid(row=row, column=col, sticky="news")
         self.__letters_in_board[row][col] = button
 
-        # Handling events
         def click_on_letter(event):
-            # Ignore the click event if the button is disabled
             if button['state'] == 'disabled':
-                return
+                # Ignore the click event if the button is disabled when it
+                #  isn't the last one to be clicked (if letters were be chosen)
+                if (self.__letters_in_word
+                        and button != self.__letters_in_word[-1]):
+                    return None
+                else:  # If click on the last clicked button, unclick it
+                    button.config(bg=REGULAR_COLOR)
+                    # If letters were be chosen, removing current button
+                    if self.__letters_in_word:
+                        self.__letters_in_word.pop()
+                    # Able clicks around the current button and disable clicks
+                    # around last buttons (if letters were be chosen)
+                    self.__able_clicks_around(row, col)
+                    if self.__get_last_button_coors():
+                        last_row, last_col = self.__get_last_button_coors()
+                        self.__disable_invalid_clicks(last_row, last_col)
+            else:  # If button is not clicked
+                button.config(bg=BUTTON_ACTIVE_COLOR)
+                self.__disable_invalid_clicks(row, col)
+                self.__letters_in_word.append(button)  # Appending button
 
-            # Change color of clicked button
-            button.config(bg=BUTTON_ACTIVE_COLOR)
-            self.__disable_invalid_clicks(row, col)
-
-            # Getting button's letter, updating the list of word buttons
-            # and displaying it
-            self.__letters_in_word.append(button)
+            # Updating the list of word buttons and displaying it
             current_word = self.__get_word_from_letters()
             self.__word_display.config(text=current_word)
 
-        button.bind("<Button-1>", click_on_letter)  # Click on letter button
+        # Handling events
+        button.bind("<Button-1>", click_on_letter)
         # Get over button, change background if button is not clicked
         button.bind("<Enter>",
                     lambda event: button.config(
@@ -173,15 +216,19 @@ class BoogleGUI:
             bg=BUTTON_ACTIVE_COLOR))
 
     def __create_empty_letters_buttons(self) -> None:
-        """The function create empty buttons for preview before playing
-        and appends them to GUI"""
+        """
+        The function create empty buttons for preview before playing
+        and appends them to GUI
+        """
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 self.__create_empty_button(row, col)
 
     def __create_letters_buttons(self) -> None:
-        """The function create letters buttons with randomized letters
-        and appends them to GUI"""
+        """
+        The function create letters buttons with randomized letters
+        and appends them to GUI
+        """
         # Creating 2D list of random letters (using randomizer file)
         board = randomize_board(LETTERS)
 
@@ -191,11 +238,11 @@ class BoogleGUI:
                 self.__create_letter_button(row, col, board[row][col])
 
     def __reset_words_list(self):
-        """The function resets the words list"""
+        """ The function resets the words list"""
         self.__words_list.delete(0, tk.END)
 
     def __create_start_button(self):
-        """The function creates start button """
+        """ The function creates start button """
         button = tk.Button(self.__outer_frame, text="START", **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.1, rely=0.2)
 
@@ -218,7 +265,7 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __create_submit_button(self):
-        """The function creates submit button """
+        """ The function creates submit button """
         button = tk.Button(self.__outer_frame, text="SUBMIT", **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.35, rely=0.2)
 
@@ -250,7 +297,7 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __create_clear_button(self):
-        """The function creates clear button """
+        """ The function creates clear button """
         button = tk.Button(self.__outer_frame, text="CLEAR",
                            **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.6, rely=0.2)
@@ -265,19 +312,23 @@ class BoogleGUI:
         button.bind("<Leave>",  # Leave widget area
                     lambda event: button.config(bg=REGULAR_COLOR))
 
-    def __present_time(self, minutes_left, seconds_left):
+    def __present_time(self, minutes, seconds):
+        """
+        The function gets minutes and seconds and display on window as
+        a regular timer
+        """
         # If the number of minutes left is whole
-        if seconds_left == 0:
-            seconds_left = "00"
+        if seconds == 0:
+            seconds = "00"
         else:
-            minutes_left -= 1
+            minutes -= 1
             # If the number of seconds (without minutes) is positive
             # and has one digit
-            if seconds_left < 10:
-                seconds_left = "0" + str(seconds_left)
+            if seconds < 10:
+                seconds = "0" + str(seconds)
 
         self.__timer.config(
-            text=f"Timer: {minutes_left}:{seconds_left}")
+            text=f"Timer: {minutes}:{seconds}")
 
     def __create_timer(self):
         """ Update the timer to present time and to stop after 3 minutes """
@@ -297,7 +348,7 @@ class BoogleGUI:
         update_timer()
 
     def run(self):
-        """The function runs the game"""
+        """ The function runs the game """
         self.__window.mainloop()
 
 
