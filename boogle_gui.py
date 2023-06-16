@@ -10,7 +10,7 @@ BOARD_COLS = 4
 TIME_IN_SECS = 180
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
-BUTTON_ACTIVE_COLOR = 'royal blue'
+BUTTON_ACTIVE_COLOR = 'gray30'
 BUTTON_STYLE = {"font": ("Courier", 25),
                 "borderwidth": 1,
                 "relief": tk.RAISED,
@@ -85,8 +85,10 @@ class BoogleGUI:
             self.__board.columnconfigure(col, weight=1)
 
     def __clear_word(self) -> None:
-        """The function clears the current word: display and letters list
-         and removes letters marks and activate all disabled buttons"""
+        """
+        The function clears the current word: display and letters list
+        and removes letters marks and activate all disabled buttons
+        """
         self.__letters_in_word = []
         self.__word_display.config(text="")
 
@@ -96,11 +98,13 @@ class BoogleGUI:
                 self.__letters_in_board[row][col].config(bg=REGULAR_COLOR)
                 self.__letters_in_board[row][col].config(state="normal")
 
-    def __disable_click_on_invalid_letters(self, current_row: int,
-                                           current_col: int) -> None:
-        """The function gets location of button and disables clicking on
-         not close buttons"""
-        # todo- document
+    def __disable_invalid_clicks(self, current_row: int,
+                                 current_col: int) -> None:
+        """
+        The function gets location of button and disables clicking on
+        invalid buttons: not close buttons or buttons which are already
+        clicked
+        """
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 if ((row == current_row and col == current_col) or
@@ -145,10 +149,9 @@ class BoogleGUI:
             if button['state'] == 'disabled':
                 return
 
-            # Activate the click disabling only on board with letters
-            if content:  # todo- document or change
-                self.__disable_click_on_invalid_letters(row, col)
+            # Change color of clicked button
             button.config(bg=BUTTON_ACTIVE_COLOR)
+            self.__disable_invalid_clicks(row, col)
 
             # Getting button's letter, updating the list of word buttons
             # and displaying it
