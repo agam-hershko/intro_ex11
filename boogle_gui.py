@@ -7,6 +7,7 @@ import time
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
+TIME_IN_SECS = 180
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'royal blue'
@@ -48,12 +49,18 @@ class BoogleGUI:
         self.__word_display.place(relheight=0.05, relwidth=0.2, relx=0.3,
                                   rely=0.1)
 
+        # Create timer
+        self.__timer = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__present_time(TIME_IN_SECS // 60, TIME_IN_SECS % 60)
+        self.__timer.place(relheight=0.05, relwidth=0.2, relx=0.05, rely=0.1)
+
         # Creating labels of score and total scores
         self.__score = tk.Label(self.__outer_frame, **LABEL_STYLE)
-        self.__score.config(text="score:0")
+        self.__score.config(text="score:0")  # Init score text
         self.__score.place(relheight=0.05, relwidth=0.2, relx=0.47, rely=0.1)
         self.__total_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
-        self.__total_score.config(text="total score:0")
+        self.__total_score.config(
+            text="total score:0")  # Init total score text
         self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
                                  rely=0.05)
 
@@ -83,7 +90,7 @@ class BoogleGUI:
         self.__letters_in_word = []
         self.__word_display.config(text="")
 
-        # Remove all letters marks
+        # Remove all letters marks and activate all buttons
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 self.__letters_in_board[row][col].config(bg=REGULAR_COLOR)
@@ -93,25 +100,24 @@ class BoogleGUI:
                                            current_col: int) -> None:
         """The function gets location of button and disables clicking on
          not close buttons"""
+        # todo- document
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 if ((row == current_row and col == current_col) or
                         (1 < abs(row - current_row) or
                          1 < abs(col - current_col)) or
                         self.__letters_in_board[row][
-                            col] in self.__letters_in_word) :
+                            col] in self.__letters_in_word):
                     self.__letters_in_board[row][col].config(state='disabled')
                 else:
                     self.__letters_in_board[row][col].config(
                         state='normal')
-        
 
     def __get_word_from_letters(self):
         """The function takes a list of letters buttons and returns word"""
         letters = map(lambda letter: letter.cget("text"),
                       self.__letters_in_word)
         return ''.join(letters)
-
 
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
@@ -130,7 +136,7 @@ class BoogleGUI:
                 return
 
             # Activate the click disabling only on board with letters
-            if content:
+            if content:  # todo- document or change
                 self.__disable_click_on_invalid_letters(row, col)
             button.config(bg=BUTTON_ACTIVE_COLOR)
 
@@ -141,12 +147,13 @@ class BoogleGUI:
             self.__word_display.config(text=current_word)
 
         button.bind("<Button-1>", click_on_letter)  # Click on letter button
-        button.bind("<Enter>",  # Get over button
+        # Get over button, change background if button is not clicked
+        button.bind("<Enter>",
                     lambda event: button.config(
                         bg=BUTTON_HOVER_COLOR) if button.cget(
                         "bg") != BUTTON_ACTIVE_COLOR else button.config(
                         bg=BUTTON_ACTIVE_COLOR))
-        # Leave widget area
+        # Leave widget area,  change background if button is not clicked
         button.bind("<Leave>", lambda event: button.config(
             bg=REGULAR_COLOR) if button.cget(
             "bg") != BUTTON_ACTIVE_COLOR else button.config(
@@ -158,6 +165,7 @@ class BoogleGUI:
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 self.__create_letter_button(row, col)
+                # todo- init not clicked
 
     def __create_letters_buttons(self) -> None:
         """The function create letters buttons with randomized letters
@@ -180,23 +188,22 @@ class BoogleGUI:
         button.place(relheight=0.05, relwidth=0.1, relx=0.1, rely=0.2)
 
         def click_on_start(event):
-            self.__clear_word()
-            self.__create_letters_buttons()
-
+            # If the game is played, change label from start to reset
             if button.cget("text") == "START":
                 button.config(text="RESET")
 
+            self.__create_timer()
+            self.__clear_word()
+            self.__create_letters_buttons()
             self.__score.config(text="score: 0")
             self.__reset_words_list()
-            self.__create_timer()
 
         # Handling events
         button.bind("<Button-1>", click_on_start)  # Click on start button
         button.bind("<Enter>",  # Get over button
                     lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",
+        button.bind("<Leave>",  # Leave widget area
                     lambda event: button.config(bg=REGULAR_COLOR))
-        
 
     def __create_submit_button(self):
         """The function creates submit button """
@@ -245,23 +252,35 @@ class BoogleGUI:
                     lambda event: button.config(bg=BUTTON_HOVER_COLOR))
         button.bind("<Leave>",  # Leave widget area
                     lambda event: button.config(bg=REGULAR_COLOR))
-        
+
+    def __present_time(self, minutes_left, seconds_left):
+        # If the number of minutes left is whole
+        if seconds_left == 0:
+            seconds_left = "00"
+        else:
+            minutes_left -= 1
+            # If the number of seconds (without minutes) is positive
+            # and has one digit
+            if seconds_left < 10:
+                seconds_left = "0" + str(seconds_left)
+
+        self.__timer.config(
+            text=f"Timer: {minutes_left}:{seconds_left}")
+
     def __create_timer(self):
-        """
-        Crée un chronomètre qui s'arrête après trois minutes
-        et le place en haut à gauche de la fenêtre
-        """
-        timer_label = tk.Label(self.__outer_frame, **LABEL_STYLE)
-        timer_label.place(relheight=0.05, relwidth=0.2, relx=0.05, rely=0.1)
+        """ Update the timer to present time and to stop after 3 minutes """
 
         def update_timer():
+            # Calculating c
             elapsed_time = time.time() - self.__start_time
-            timer_label.config(text=f"Temps : {int(elapsed_time)} secondes")
+            minutes_left = TIME_IN_SECS // 60 - int(elapsed_time) // 60
+            secs_left = 60 - int(elapsed_time) % 60
+            secs_left = 0 if secs_left == 60 else secs_left
+            self.__present_time(minutes_left, secs_left)
 
-            if elapsed_time < 180:  # Arrête le chronomètre après 3 minutes
-                timer_label.after(1000, update_timer)
+            if elapsed_time < TIME_IN_SECS:  # Stop the timer after 3 minutes
+                self.__timer.after(1000, update_timer)
 
-        
         self.__start_time = time.time()
         update_timer()
 
