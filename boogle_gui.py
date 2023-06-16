@@ -75,6 +75,7 @@ class BoogleGUI:
         self.__create_start_button()
         self.__create_submit_button()
         self.__create_clear_button()
+        self.__create_close_button()
 
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
@@ -307,6 +308,22 @@ class BoogleGUI:
 
         # Handling events
         button.bind("<Button-1>", click_on_clear)  # Click on submit
+        button.bind("<Enter>",  # Get over button
+                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
+        button.bind("<Leave>",  # Leave widget area
+                    lambda event: button.config(bg=REGULAR_COLOR))
+
+    def __create_close_button(self):
+        """ The function creates close button which is close the window """
+        button = tk.Button(self.__outer_frame, text="CLOSE",
+                           **BUTTON_STYLE)
+        button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
+
+        def click_on_close(event):
+            self.__window.destroy()
+
+        # Handling events
+        button.bind("<Button-1>", click_on_close)  # Click on submit
         button.bind("<Enter>",  # Get over button
                     lambda event: button.config(bg=BUTTON_HOVER_COLOR))
         button.bind("<Leave>",  # Leave widget area
