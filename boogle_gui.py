@@ -119,6 +119,16 @@ class BoogleGUI:
                       self.__letters_in_word)
         return ''.join(letters)
 
+    def __create_empty_button(self, row: int, col: int) -> None:
+        """The function gets location of button in board and
+        creates empty button and appends it to GUI board (grid)
+        and buttons matrix"""
+        button = tk.Button(self.__board, **BUTTON_STYLE)
+        button.config(state="disabled")
+        # Grid: sticky "news" means locate in center (all direction)
+        button.grid(row=row, column=col, sticky="news")
+        self.__letters_in_board[row][col] = button
+
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
         """The function gets location of button in board and its content and
@@ -164,8 +174,7 @@ class BoogleGUI:
         and appends them to GUI"""
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
-                self.__create_letter_button(row, col)
-                # todo- init not clicked
+                self.__create_empty_button(row, col)
 
     def __create_letters_buttons(self) -> None:
         """The function create letters buttons with randomized letters
@@ -238,7 +247,7 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __create_clear_button(self):
-        """The function creates submit button """
+        """The function creates clear button """
         button = tk.Button(self.__outer_frame, text="CLEAR",
                            **BUTTON_STYLE)
         button.place(relheight=0.05, relwidth=0.1, relx=0.6, rely=0.2)
