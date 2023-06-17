@@ -68,6 +68,10 @@ class BoogleGUI:
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
+        scrollbar = tk.Scrollbar(self.__outer_frame, orient="vertical")
+        scrollbar.config(command=self.__words_list.yview)
+        scrollbar.place(relheight=0.6, relwidth=0.02, relx=0.95, rely=0.3)
+        self.__words_list.config(yscrollcommand=scrollbar.set)
 
         # Creates game objects
         self.__letters_in_word = []
@@ -285,9 +289,9 @@ class BoogleGUI:
             current_word = self.__get_word_from_letters()
             words = create_set("boggle_dict.txt")
 
-            if current_word in words \
-                    and current_word not in \
-                    self.__words_list.get(0, "end"):  # If word not in list
+            if (current_word in words
+                    and current_word not in
+                    self.__words_list.get(0, "end")):  # If word not in list
                 current_score = len(current_word) ** 2
                 score = self.__score.cget("text").split(":")[1]
                 self.__score.config(
@@ -330,22 +334,6 @@ class BoogleGUI:
         self.__clear_button.bind("<Leave>",  # Leave widget area
                                  lambda event: self.__clear_button.config(
                                      bg=REGULAR_COLOR))
-
-    def __create_close_button(self):
-        """ The function creates close button which is close the window """
-        button = tk.Button(self.__outer_frame, text="CLOSE",
-                           **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
-
-        def click_on_close(event):
-            self.__window.destroy()
-
-        # Handling events
-        button.bind("<Button-1>", click_on_close)  # Click on submit
-        button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",  # Leave widget area
-                    lambda event: button.config(bg=REGULAR_COLOR))
 
     def __present_time(self, minutes, seconds):
         """
@@ -428,6 +416,11 @@ class BoogleGUI:
                     lambda event: button.config(bg=REGULAR_COLOR))
 
     def __finish_the_game(self):
+        """
+        function finishes the game: create frame for message and disables
+        buttons and create game object on frame (game message, score, message
+        about new game and answer buttons)
+        """
         self.__board = tk.Frame(self.__outer_frame)
         self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
 
