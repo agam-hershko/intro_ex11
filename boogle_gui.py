@@ -203,7 +203,7 @@ class BoogleGUI:
             self.__word_display.config(text=current_word)
 
         # Handling events
-        button.bind("<Button-1>", click_on_letter) # Click on submit
+        button.bind("<Button-1>", click_on_letter)  # Click on submit
         # Get over button, change background if button is not clicked
         button.bind("<Enter>",
                     lambda event: button.config(
@@ -338,7 +338,6 @@ class BoogleGUI:
         if seconds == 0:
             seconds = "00"
         else:
-            minutes -= 1
             # If the number of seconds (without minutes) is positive
             # and has one digit
             if seconds < 10:
@@ -351,15 +350,20 @@ class BoogleGUI:
         """ Update the timer to present time and to stop after 3 minutes """
 
         def update_timer():
-            # Calculating c
-            elapsed_time = time.time() - self.__start_time
-            minutes_left = TIME_IN_SECS // 60 - int(elapsed_time) // 60
-            secs_left = 60 - int(elapsed_time) % 60
+            # Calculating clapsed time
+            elapsed_time = int(time.time() - self.__start_time)
+
+            # Calculating minutes and seconds for timer
+            minutes_left = (TIME_IN_SECS - elapsed_time) // 60
+            secs_left = (TIME_IN_SECS - elapsed_time) % 60
             secs_left = 0 if secs_left == 60 else secs_left
+
             self.__present_time(minutes_left, secs_left)
 
             if elapsed_time < TIME_IN_SECS:  # Stop the timer after 3 minutes
                 self.__timer.after(1000, update_timer)
+            else:
+                print("sad")
 
         self.__start_time = time.time()
         update_timer()
