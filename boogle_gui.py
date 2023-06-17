@@ -331,6 +331,22 @@ class BoogleGUI:
                                  lambda event: self.__clear_button.config(
                                      bg=REGULAR_COLOR))
 
+    def __create_close_button(self):
+        """ The function creates close button which is close the window """
+        button = tk.Button(self.__outer_frame, text="CLOSE",
+                           **BUTTON_STYLE)
+        button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
+
+        def click_on_close(event):
+            self.__window.destroy()
+
+        # Handling events
+        button.bind("<Button-1>", click_on_close)  # Click on submit
+        button.bind("<Enter>",  # Get over button
+                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
+        button.bind("<Leave>",  # Leave widget area
+                    lambda event: button.config(bg=REGULAR_COLOR))
+
     def __present_time(self, minutes, seconds):
         """
         The function gets minutes and seconds and display on window as
