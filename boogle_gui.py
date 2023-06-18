@@ -470,6 +470,11 @@ class BoogleGUI:
                 text="best score: " + str(current_score))
 
     def __finish_the_game(self):
+        """
+        function finishes the game: create frame for message and disables
+        buttons and create game object on frame (game message, score, message
+        about new game and answer buttons)
+        """
         self.__board = tk.Frame(self.__outer_frame)
         self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
 
