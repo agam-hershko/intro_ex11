@@ -3,6 +3,7 @@ import tkinter as tk
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
+import pygame
 
 # Constants
 BOARD_ROWS = 4
@@ -11,11 +12,13 @@ TIME_IN_SECS = 180
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray30'
-BUTTON_STYLE = {"borderwidth": 1,
+BUTTON_STYLE = {"font": ("Courier", 25),
+                "borderwidth": 1,
                 "relief": tk.RAISED,
                 "bg": REGULAR_COLOR,
                 "activebackground": BUTTON_ACTIVE_COLOR}
-LABEL_STYLE = {"bg": REGULAR_COLOR}
+LABEL_STYLE = {"font": ("Courier", 15), "bg": REGULAR_COLOR}
+
 
 
 class BoogleGUI:
@@ -63,14 +66,10 @@ class BoogleGUI:
         self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
                                  rely=0.05)
 
-        # Creating list of founded words and scrollbar
+        # Creating list of founded words
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
-        scrollbar = tk.Scrollbar(self.__outer_frame, orient="vertical")
-        scrollbar.config(command=self.__words_list.yview)
-        scrollbar.place(relheight=0.6, relwidth=0.02, relx=0.95, rely=0.3)
-        self.__words_list.config(yscrollcommand=scrollbar.set)
 
         # Creates game objects
         self.__letters_in_word = []
@@ -80,28 +79,27 @@ class BoogleGUI:
         self.__create_clear_button()
         self.__create_close_button()
         self.__window.bind("<Configure>", self.__configure_window)
+        pygame.mixer.init()
+        self.__word_found_sound = pygame.mixer.Sound("CRWDCheer_Applaudissement.wav")
 
-    def __configure_window(self, event):
-        """
-        The function configures the window size and adjust button font size
-        accordingly
-        """
-        window_width = self.__window.winfo_width()
-        window_height = self.__window.winfo_height()
-        button_font_size = min(window_width, window_height) // 25
+    
+    
+    def __configure_window(self,event):
+            """Method to configure the window size and adjust button font size accordingly"""
+            window_width = self.__window.winfo_width()
+            window_height = self.__window.winfo_height()
+            button_font_size = min(window_width, window_height) // 25
 
-        # Update font size for letter buttons
-        for row in range(BOARD_ROWS):
-            for col in range(BOARD_COLS):
-                button = self.__letters_in_board[row][col]
-                button.config(font=("Courier", button_font_size))
+            # Update font size for letter buttons
+            for row in range(BOARD_ROWS):
+                for col in range(BOARD_COLS):
+                    button = self.__letters_in_board[row][col]
+                    button.config(font=("Courier", button_font_size))
 
-        # Update font size for other buttons and labels
-        for widget in [self.__word_display, self.__timer, self.__score,
-                       self.__total_score, self.__words_list,
-                       self.__start_button, self.__submit_button,
-                       self.__clear_button]:
-            widget.config(font=("Courier", button_font_size))
+            # Update font size for other buttons and labels
+            for widget in [self.__word_display, self.__timer, self.__score, self.__total_score, self.__words_list, self.__start_button, self.__submit_button, self.__clear_button]:
+                widget.config(font=("Courier", button_font_size))
+
 
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
@@ -324,6 +322,7 @@ class BoogleGUI:
                         (current_score + int(total_score))))
 
                 self.__words_list.insert(0, current_word)
+                self.__word_found_sound.play()
 
             self.__clear_word()
 
@@ -356,6 +355,22 @@ class BoogleGUI:
         self.__clear_button.bind("<Leave>",  # Leave widget area
                                  lambda event: self.__clear_button.config(
                                      bg=REGULAR_COLOR))
+
+    def __create_close_button(self):
+        """ The function creates close button which is close the window """
+        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
+                           **BUTTON_STYLE)
+        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
+
+        def click_on_close(event):
+            self.__window.destroy()
+
+        # Handling events
+        self.__close_button.bind("<Button-1>", click_on_close)  # Click on submit
+        self.__close_button.bind("<Enter>",  # Get over button
+                    lambda event: self.__close_button.config(bg=BUTTON_HOVER_COLOR))
+        self.__close_button.bind("<Leave>",  # Leave widget area
+                    lambda event: self.__close_button.config(bg=REGULAR_COLOR))
 
     def __present_time(self, minutes, seconds):
         """
