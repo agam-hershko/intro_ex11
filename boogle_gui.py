@@ -7,7 +7,7 @@ import time
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
-TIME_IN_SECS = 180
+TIME_IN_SECS = 18
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray30'
@@ -63,6 +63,12 @@ class BoogleGUI:
         self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
                                  rely=0.05)
 
+        # Creating labels of best score and longest word
+        self.__best_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__best_score.config(text="best score: 0")  # Init score text
+        self.__best_score.place(relheight=0.05, relwidth=0.2, relx=0.75,
+                                rely=0.15)
+
         # Creating list of founded words and scrollbar
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
@@ -89,6 +95,7 @@ class BoogleGUI:
         window_width = self.__window.winfo_width()
         window_height = self.__window.winfo_height()
         button_font_size = min(window_width, window_height) // 25
+        label_font_size = min(window_width, window_height) // 40
 
         # Update font size for letter buttons
         for row in range(BOARD_ROWS):
@@ -100,8 +107,8 @@ class BoogleGUI:
         for widget in [self.__word_display, self.__timer, self.__score,
                        self.__total_score, self.__words_list,
                        self.__start_button, self.__submit_button,
-                       self.__clear_button]:
-            widget.config(font=("Courier", button_font_size))
+                       self.__clear_button, self.__best_score]:
+            widget.config(font=("Courier", label_font_size))
 
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
@@ -314,15 +321,17 @@ class BoogleGUI:
             if current_word in words \
                     and current_word not in \
                     self.__words_list.get(0, "end"):  # If word not in list
+                # Updating scores
                 current_score = len(current_word) ** 2
-                score = self.__score.cget("text").split(":")[1]
+                score = int(self.__score.cget("text").split(":")[1])
                 self.__score.config(
-                    text="score: " + str((current_score + int(score))))
-                total_score = self.__total_score.cget("text").split(":")[1]
+                    text="score: " + str(current_score + score))
+                total_score = int(
+                    self.__total_score.cget("text").split(":")[1])
                 self.__total_score.config(
-                    text="total score: " + str(
-                        (current_score + int(total_score))))
+                    text="total score: " + str(current_score + total_score))
 
+                # Insert score to words list
                 self.__words_list.insert(0, current_word)
 
             self.__clear_word()
@@ -441,11 +450,16 @@ class BoogleGUI:
         self.__board = tk.Frame(self.__outer_frame)
         self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
 
-        # Disable buttons and clear word on display
+        # Disable buttons
         self.__start_button.config(state="disabled")
         self.__submit_button.config(state="disabled")
         self.__clear_button.config(state="disabled")
+        # Clear word on display and update best score
         self.__clear_word()
+        current_score = int(self.__score.cget("text").split(":")[1])
+        if current_score > int(self.__best_score.cget("text").split(":")[1]):
+            self.__best_score.config(
+                text="best score: " + str(current_score))
 
         # Create label with information of ending game
         game_message = tk.Label(self.__board, **LABEL_STYLE)
