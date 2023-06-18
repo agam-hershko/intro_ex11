@@ -518,6 +518,7 @@ class BoogleGUI:
         tk.messagebox.showinfo("Goodbye", message)
 
     def __close_window(self):
+        """ The function show messagebox and closes the window """
         self.__goodbye_window()
         # todo -stop timer
         self.__window.destroy()
