@@ -94,7 +94,7 @@ class BoogleGUI:
         pygame.mixer.init()
         self.__word_found_sound = pygame.mixer.Sound(
             "CRWDCheer_Applaudissement.wav")
-        # self.__end_game = pygame.mixer.Sound("VOXMale_Compte.wav")
+        self.__end_game = pygame.mixer.Sound("VOXMale_Compte.wav")
         self.__wrong_world = pygame.mixer.Sound(
             "buzzer-or-wrong-answer-20582.mp3")
 
@@ -312,6 +312,7 @@ class BoogleGUI:
             self.__create_letters_buttons()
             self.__score.config(text="score: 0")
             self.__reset_words_list()
+            self.__end_game.stop()
 
         # Handling events
         self.__start_button.bind("<Button-1>", click_on_start)  # Click start
@@ -427,8 +428,9 @@ class BoogleGUI:
             else:
                 self.__finish_the_game()
 
-            # if elapsed_time == TIME_IN_SECS - 11:
-            #     self.__end_game.play()
+            if elapsed_time == TIME_IN_SECS - 11:
+                self.__end_game.stop()
+                self.__end_game.play()
 
         self.__start_time = time.time()
         update_timer()
@@ -529,6 +531,7 @@ class BoogleGUI:
 
     def __close_window(self):
         """ The function show messagebox and closes the window """
+        self.__end_game.stop()
         self.__goodbye_window()
         self.__window.destroy()
 
