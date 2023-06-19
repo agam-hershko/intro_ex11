@@ -9,7 +9,7 @@ import pygame
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
-TIME_IN_SECS = 180
+TIME_IN_SECS = 18
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray25'
@@ -94,7 +94,7 @@ class BoogleGUI:
         pygame.mixer.init()
         self.__word_found_sound = pygame.mixer.Sound(
             "CRWDCheer_Applaudissement.wav")
-        self.__end_game = pygame.mixer.Sound("VOXMale_Compte.wav")
+        # self.__end_game = pygame.mixer.Sound("VOXMale_Compte.wav")
         self.__wrong_world = pygame.mixer.Sound(
             "buzzer-or-wrong-answer-20582.mp3")
 
@@ -426,8 +426,9 @@ class BoogleGUI:
                 self.__timer.after(1000, update_timer)
             else:
                 self.__finish_the_game()
-            if elapsed_time == TIME_IN_SECS - 11:
-                self.__end_game.play()
+
+            # if elapsed_time == TIME_IN_SECS - 11:
+            #     self.__end_game.play()
 
         self.__start_time = time.time()
         update_timer()
