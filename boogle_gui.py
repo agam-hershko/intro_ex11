@@ -1,5 +1,6 @@
 # Imports
 import tkinter as tk
+import tkinter.messagebox
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
@@ -26,9 +27,11 @@ class BoogleGUI:
     on the screen """
 
     def __init__(self):
-        root = tk.Tk()
+        root = tk.Tk()  # Create window from tk
         self.__window = root
-        root.title("Boogle")
+        # While press window's close button, activate closing protocol
+        root.protocol("WM_DELETE_WINDOW", self.__close_window)
+        root.title("Boogle")  # Title the window
 
         # Creating outer frame which contains all objects
         self.__outer_frame = tk.Frame(root, bg=REGULAR_COLOR,
@@ -58,15 +61,25 @@ class BoogleGUI:
 
         # Creating labels of score and total scores
         self.__score = tk.Label(self.__outer_frame, **LABEL_STYLE)
-        self.__score.config(text="score:0")  # Init score text
+        self.__score.config(text="score: 0")  # Init score text
         self.__score.place(relheight=0.05, relwidth=0.2, relx=0.47, rely=0.1)
         self.__total_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
         self.__total_score.config(
-            text="total score:0")  # Init total score text
+            text="total score: 0")  # Init total score text
         self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
                                  rely=0.05)
 
-        # Creating list of founded words
+        # Creating labels of best score and longest word
+        self.__best_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__best_score.config(text="best score: 0")  # Init score text
+        self.__best_score.place(relheight=0.05, relwidth=0.2, relx=0.75,
+                                rely=0.15)
+        self.__longest_word = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__longest_word.config(text="longest word: ")  # Init word text
+        self.__longest_word.place(relheight=0.05, relwidth=0.2, relx=0.75,
+                                  rely=0.2)
+
+        # Creating list of founded words and scrollbar
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
@@ -101,7 +114,30 @@ class BoogleGUI:
             # Update font size for other buttons and labels
             for widget in [self.__word_display, self.__timer, self.__score, self.__total_score, self.__words_list, self.__start_button, self.__submit_button, self.__clear_button]:
                 widget.config(font=("Courier", button_font_size))
+                
+    def __configure_window(self, event):
+        """
+        The function configures the window size and adjust button font size
+        accordingly
+        """
+        window_width = self.__window.winfo_width()
+        window_height = self.__window.winfo_height()
+        button_font_size = min(window_width, window_height) // 25
+        label_font_size = min(window_width, window_height) // 40
 
+        # Update font size for letter buttons
+        for row in range(BOARD_ROWS):
+            for col in range(BOARD_COLS):
+                button = self.__letters_in_board[row][col]
+                button.config(font=("Courier", button_font_size))
+
+        # Update font size for other buttons and labels
+        for widget in [self.__word_display, self.__timer, self.__score,
+                       self.__total_score, self.__words_list,
+                       self.__start_button, self.__submit_button,
+                       self.__clear_button, self.__close_button,
+                       self.__best_score, self.__longest_word]:
+            widget.config(font=("Courier", label_font_size))
 
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
@@ -285,6 +321,9 @@ class BoogleGUI:
             if self.__start_button.cget("text") == "START":
                 self.__start_button.config(text="RESET")
 
+            self.__update_best_score()  # Update best score
+
+            # Reset game objects
             self.__create_timer()
             self.__clear_word()
             self.__create_letters_buttons()
@@ -314,15 +353,24 @@ class BoogleGUI:
             if current_word in words \
                     and current_word not in \
                     self.__words_list.get(0, "end"):  # If word not in list
-                current_score = len(current_word) ** 2
-                score = self.__score.cget("text").split(":")[1]
-                self.__score.config(
-                    text="score: " + str((current_score + int(score))))
-                total_score = self.__total_score.cget("text").split(":")[1]
-                self.__total_score.config(
-                    text="total score: " + str(
-                        (current_score + int(total_score))))
 
+                # Updating scores
+                current_score = len(current_word) ** 2
+                score = int(self.__score.cget("text").split(":")[1])
+                self.__score.config(
+                    text="score: " + str(current_score + score))
+                total_score = int(
+                    self.__total_score.cget("text").split(":")[1])
+                self.__total_score.config(
+                    text="total score: " + str(current_score + total_score))
+
+                # Updating the longest word (first in this length)
+                longest_word = self.__longest_word.cget("text").split(": ")[1]
+                if len(current_word) > len(longest_word):
+                    self.__longest_word.config(
+                        text="longest word: " + current_word)
+
+                # Insert score to words list
                 self.__words_list.insert(0, current_word)
                 self.__word_found_sound.play()
             else:
@@ -448,8 +496,7 @@ class BoogleGUI:
         button.place(relheight=0.15, relwidth=0.1, relx=0.8, rely=0.7)
 
         def click_on_no(event):
-            # Todo- add pop window with message and total score (also in close)
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
         button.bind("<Button-1>", click_on_no)  # Click on submit
@@ -458,15 +505,31 @@ class BoogleGUI:
         button.bind("<Leave>",  # Leave widget area
                     lambda event: button.config(bg=REGULAR_COLOR))
 
+    def __update_best_score(self):
+        """ The function updates the best score """
+        current_score = int(self.__score.cget("text").split(":")[1])
+
+        # Checking if the current score is higher than the best
+        if current_score > int(self.__best_score.cget("text").split(":")[1]):
+            self.__best_score.config(
+                text="best score: " + str(current_score))
+
     def __finish_the_game(self):
+        """
+        The function finishes the game: create frame for message and disables
+        buttons and create game object on frame (game message, score, message
+        about new game and answer buttons)
+        """
         self.__board = tk.Frame(self.__outer_frame)
         self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
 
-        # Disable buttons and clear word on display
+        # Disable buttons
         self.__start_button.config(state="disabled")
         self.__submit_button.config(state="disabled")
         self.__clear_button.config(state="disabled")
+        # Clear word on display and update best score
         self.__clear_word()
+        self.__update_best_score()
 
         # Create label with information of ending game
         game_message = tk.Label(self.__board, **LABEL_STYLE)
@@ -489,21 +552,37 @@ class BoogleGUI:
         self.__create_yes_button()
         self.__create_no_button()
 
+    def __goodbye_window(self):
+        """
+        The function activates messagebox with goodbye greeting and total score
+        """
+        message = "Thanks for playing!\n" + self.__total_score.cget("text")
+        tk.messagebox.showinfo("Goodbye", message)
+
+    def __close_window(self):
+        """ The function show messagebox and closes the window """
+        self.__goodbye_window()
+        # todo -stop timer
+        self.__window.destroy()
+
     def __create_close_button(self):
         """ The function creates close button which is close the window """
-        button = tk.Button(self.__outer_frame, text="CLOSE",
-                           **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
+        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
+                                        **BUTTON_STYLE)
+        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9,
+                                  rely=0.0)
 
         def click_on_close(event):
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
-        button.bind("<Button-1>", click_on_close)  # Click on submit
-        button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",  # Leave widget area
-                    lambda event: button.config(bg=REGULAR_COLOR))
+        self.__close_button.bind("<Button-1>", click_on_close)  # Click close
+        self.__close_button.bind("<Enter>",  # Get over button
+                                 lambda event: self.__close_button.config(
+                                     bg=BUTTON_HOVER_COLOR))
+        self.__close_button.bind("<Leave>",  # Leave widget area
+                                 lambda event: self.__close_button.config(
+                                     bg=REGULAR_COLOR))
 
     def run(self):
         """ The function runs the game """
