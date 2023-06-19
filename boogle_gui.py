@@ -1,5 +1,6 @@
 # Imports
 import tkinter as tk
+import tkinter.messagebox
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
@@ -23,9 +24,11 @@ class BoogleGUI:
     on the screen """
 
     def __init__(self):
-        root = tk.Tk()
+        root = tk.Tk()  # Create window from tk
         self.__window = root
-        root.title("Boogle")
+        # While press window's close button, activate closing protocol
+        root.protocol("WM_DELETE_WINDOW", self.__close_window)
+        root.title("Boogle")  # Title the window
 
         # Creating outer frame which contains all objects
         self.__outer_frame = tk.Frame(root, bg=REGULAR_COLOR,
@@ -451,8 +454,7 @@ class BoogleGUI:
         button.place(relheight=0.15, relwidth=0.1, relx=0.8, rely=0.7)
 
         def click_on_no(event):
-            # Todo- add pop window with message and total score (also in close)
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
         button.bind("<Button-1>", click_on_no)  # Click on submit
@@ -508,6 +510,19 @@ class BoogleGUI:
         self.__create_yes_button()
         self.__create_no_button()
 
+    def __goodbye_window(self):
+        """
+        The function activates messagebox with goodbye greeting and total score
+        """
+        message = "Thanks for playing!\n" + self.__total_score.cget("text")
+        tk.messagebox.showinfo("Goodbye", message)
+
+    def __close_window(self):
+        """ The function show messagebox and closes the window """
+        self.__goodbye_window()
+        # todo -stop timer
+        self.__window.destroy()
+
     def __create_close_button(self):
         """ The function creates close button which is close the window """
         self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
@@ -516,11 +531,10 @@ class BoogleGUI:
                                   rely=0.0)
 
         def click_on_close(event):
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
-        self.__close_button.bind("<Button-1>",
-                                 click_on_close)  # Click on submit
+        self.__close_button.bind("<Button-1>", click_on_close)  # Click close
         self.__close_button.bind("<Enter>",  # Get over button
                                  lambda event: self.__close_button.config(
                                      bg=BUTTON_HOVER_COLOR))
