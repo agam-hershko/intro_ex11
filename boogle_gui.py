@@ -13,12 +13,11 @@ TIME_IN_SECS = 18
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray25'
-BUTTON_STYLE = {"font": ("Courier", 25),
-                "borderwidth": 1,
+BUTTON_STYLE = {"borderwidth": 1,
                 "relief": tk.RAISED,
                 "bg": REGULAR_COLOR,
                 "activebackground": BUTTON_ACTIVE_COLOR}
-LABEL_STYLE = {"font": ("Courier", 15), "bg": REGULAR_COLOR}
+LABEL_STYLE = {"bg": REGULAR_COLOR}
 
 
 class BoogleGUI:
@@ -61,11 +60,11 @@ class BoogleGUI:
         # Creating labels of score and total scores
         self.__score = tk.Label(self.__outer_frame, **LABEL_STYLE)
         self.__score.config(text="score: 0")  # Init score text
-        self.__score.place(relheight=0.05, relwidth=0.2, relx=0.47, rely=0.1)
+        self.__score.place(relheight=0.05, relwidth=0.2, relx=0.5, rely=0.1)
         self.__total_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
         self.__total_score.config(
             text="total score: 0")  # Init total score text
-        self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.5,
+        self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.53,
                                  rely=0.05)
 
         # Creating labels of best score and longest word
@@ -82,6 +81,10 @@ class BoogleGUI:
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
+        scrollbar = tk.Scrollbar(self.__outer_frame, orient="vertical")
+        scrollbar.config(command=self.__words_list.yview)
+        scrollbar.place(relheight=0.6, relwidth=0.02, relx=0.95, rely=0.3)
+        self.__words_list.config(yscrollcommand=scrollbar.set)
 
         # Creates game objects
         self.__letters_in_word = []
@@ -105,22 +108,47 @@ class BoogleGUI:
         """
         window_width = self.__window.winfo_width()
         window_height = self.__window.winfo_height()
-        button_font_size = min(window_width, window_height) // 25
-        label_font_size = min(window_width, window_height) // 40
+        letter_font_size = min(window_width, window_height) // 25
+        button_font_size = min(window_width, window_height) // 40
+        label_font_size = min(window_width, window_height) // 60
 
         # Update font size for letter buttons
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
                 button = self.__letters_in_board[row][col]
-                button.config(font=("Courier", button_font_size))
+                button.config(font=("Courier", letter_font_size))
 
-        # Update font size for other buttons and labels
+        # Update font size for other buttons
+        for widget in [self.__start_button, self.__submit_button,
+                       self.__clear_button, self.__close_button]:
+            widget.config(font=("Courier", button_font_size))
+
+        # Update font size for other labels
         for widget in [self.__word_display, self.__timer, self.__score,
                        self.__total_score, self.__words_list,
-                       self.__start_button, self.__submit_button,
-                       self.__clear_button, self.__close_button,
                        self.__best_score, self.__longest_word]:
             widget.config(font=("Courier", label_font_size))
+
+    def __configure_finished_game_window(self, event):
+        """
+        The function configures the window size and adjust button font size
+        accordingly
+        """
+        window_width = self.__window.winfo_width()
+        window_height = self.__window.winfo_height()
+        label_font_size = min(window_width, window_height) // 60
+        button_font_size = min(window_width, window_height) // 40
+
+        # Update font size for buttons
+        for widget in [self.__no_button, self.__yes_button]:
+            widget.config(font=("Courier", button_font_size))
+
+        # Update font size for other labels
+        for widget in [self.__game_message, self.__last_score,
+                       self.__new_game]:
+            widget.config(font=("Courier", label_font_size))
+
+        self.__configure_window(event)
 
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
@@ -436,9 +464,10 @@ class BoogleGUI:
         update_timer()
 
     def __create_yes_button(self):
-        button = tk.Button(self.__board, text="YES",
-                           **BUTTON_STYLE)
-        button.place(relheight=0.15, relwidth=0.1, relx=0.65, rely=0.7)
+        self.__yes_button = tk.Button(self.__board, text="YES",
+                                      **BUTTON_STYLE)
+        self.__yes_button.place(relheight=0.15, relwidth=0.1, relx=0.65,
+                                rely=0.7)
 
         def click_on_yes(event):
             # Recreate board
@@ -454,26 +483,31 @@ class BoogleGUI:
             self.__reset_words_list()
 
         # Handling events
-        button.bind("<Button-1>", click_on_yes)  # Click on submit
-        button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",  # Leave widget area
-                    lambda event: button.config(bg=REGULAR_COLOR))
+        self.__yes_button.bind("<Button-1>", click_on_yes)  # Click on submit
+        self.__yes_button.bind("<Enter>",  # Get over button
+                               lambda event: self.__yes_button.config(
+                                   bg=BUTTON_HOVER_COLOR))
+        self.__yes_button.bind("<Leave>",  # Leave widget area
+                               lambda event: self.__yes_button.config(
+                                   bg=REGULAR_COLOR))
 
     def __create_no_button(self):
-        button = tk.Button(self.__board, text="NO",
-                           **BUTTON_STYLE)
-        button.place(relheight=0.15, relwidth=0.1, relx=0.8, rely=0.7)
+        self.__no_button = tk.Button(self.__board, text="NO",
+                                     **BUTTON_STYLE)
+        self.__no_button.place(relheight=0.15, relwidth=0.1, relx=0.8,
+                               rely=0.7)
 
         def click_on_no(event):
             self.__close_window()
 
         # Handling events
-        button.bind("<Button-1>", click_on_no)  # Click on submit
-        button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",  # Leave widget area
-                    lambda event: button.config(bg=REGULAR_COLOR))
+        self.__no_button.bind("<Button-1>", click_on_no)  # Click on submit
+        self.__no_button.bind("<Enter>",  # Get over button
+                              lambda event: self.__no_button.config(
+                                  bg=BUTTON_HOVER_COLOR))
+        self.__no_button.bind("<Leave>",  # Leave widget area
+                              lambda event: self.__no_button.config(
+                                  bg=REGULAR_COLOR))
 
     def __update_best_score(self):
         """ The function updates the best score """
@@ -502,25 +536,28 @@ class BoogleGUI:
         self.__update_best_score()
 
         # Create label with information of ending game
-        game_message = tk.Label(self.__board, **LABEL_STYLE)
-        game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
-                           rely=0.1)
-        game_message.config(text="Your time is up!")
+        self.__game_message = tk.Label(self.__board, **LABEL_STYLE)
+        self.__game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
+                                  rely=0.1)
+        self.__game_message.config(text="Your time is up!")
 
         # Creating label with information of score in last game
-        last_score = tk.Label(self.__board, **LABEL_STYLE)
-        last_score.config(text=self.__score.cget("text"))
-        last_score.place(relheight=0.15, relwidth=0.2, relx=0.4,
-                         rely=0.4)
+        self.__last_score = tk.Label(self.__board, **LABEL_STYLE)
+        self.__last_score.config(text=self.__score.cget("text"))
+        self.__last_score.place(relheight=0.15, relwidth=0.2, relx=0.4,
+                                rely=0.4)
 
         # Creating label with question about new game
-        new_game = tk.Label(self.__board, **LABEL_STYLE)
-        new_game.place(relheight=0.15, relwidth=0.5, relx=0.1,
-                       rely=0.7)
-        new_game.config(text="Do you want to play again?")
+        self.__new_game = tk.Label(self.__board, **LABEL_STYLE)
+        self.__new_game.place(relheight=0.15, relwidth=0.5, relx=0.1,
+                              rely=0.7)
+        self.__new_game.config(text="Do you want to play again?")
         # Create buttons to answer the question
         self.__create_yes_button()
         self.__create_no_button()
+
+        self.__window.bind("<Configure>",
+                           self.__configure_finished_game_window)
 
     def __goodbye_window(self):
         """
