@@ -8,7 +8,7 @@ import time
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
-TIME_IN_SECS = 18
+TIME_IN_SECS = 180
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray30'
