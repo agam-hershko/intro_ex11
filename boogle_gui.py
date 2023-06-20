@@ -355,14 +355,16 @@ class BoogleGUI:
             if current_word in words \
                     and current_word not in \
                     self.__words_list.get(0, "end"):  # If word not in list
+
+                # Updating scores
                 current_score = len(current_word) ** 2
-                score = self.__score.cget("text").split(":")[1]
+                score = int(self.__score.cget("text").split(":")[1])
                 self.__score.config(
-                    text="score: " + str((current_score + int(score))))
-                total_score = self.__total_score.cget("text").split(":")[1]
+                    text="score: " + str(current_score + score))
+                total_score = int(
+                    self.__total_score.cget("text").split(":")[1])
                 self.__total_score.config(
-                    text="total score: " + str(
-                        (current_score + int(total_score))))
+                    text="total score: " + str(current_score + total_score))
 
                 # Updating the longest word (first in this length)
                 longest_word = self.__longest_word.cget("text").split(": ")[1]
@@ -370,8 +372,10 @@ class BoogleGUI:
                     self.__longest_word.config(
                         text="longest word: " + current_word)
 
+                # Insert score to words list
                 self.__words_list.insert(0, current_word)
-                self.__clear_word()  # Clear word on display
+
+            self.__clear_word()
 
         # Handling events
         self.__submit_button.bind("<Button-1>",
