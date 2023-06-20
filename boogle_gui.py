@@ -65,7 +65,17 @@ class BoogleGUI:
         self.__total_score.place(relheight=0.05, relwidth=0.2, relx=0.53,
                                  rely=0.05)
 
-        # Creating list of founded words
+        # Creating labels of best score and longest word
+        self.__best_score = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__best_score.config(text="best score: 0")  # Init score text
+        self.__best_score.place(relheight=0.05, relwidth=0.2, relx=0.75,
+                                rely=0.15)
+        self.__longest_word = tk.Label(self.__outer_frame, **LABEL_STYLE)
+        self.__longest_word.config(text="longest word: ")  # Init word text
+        self.__longest_word.place(relheight=0.05, relwidth=0.2, relx=0.75,
+                                  rely=0.2)
+
+        # Creating list of founded words and scrollbar
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
