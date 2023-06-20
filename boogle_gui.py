@@ -482,6 +482,15 @@ class BoogleGUI:
                               lambda event: self.__no_button.config(
                                   bg=REGULAR_COLOR))
 
+    def __update_best_score(self):
+        """ The function updates the best score """
+        current_score = int(self.__score.cget("text").split(":")[1])
+
+        # Checking if the current score is higher than the best
+        if current_score > int(self.__best_score.cget("text").split(":")[1]):
+            self.__best_score.config(
+                text="best score: " + str(current_score))
+
     def __finish_the_game(self):
         self.__board = tk.Frame(self.__outer_frame)
         self.__board.place(relheight=0.6, relwidth=0.6, relx=0.1, rely=0.3)
