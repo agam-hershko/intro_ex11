@@ -364,6 +364,12 @@ class BoogleGUI:
                     text="total score: " + str(
                         (current_score + int(total_score))))
 
+                # Updating the longest word (first in this length)
+                longest_word = self.__longest_word.cget("text").split(": ")[1]
+                if len(current_word) > len(longest_word):
+                    self.__longest_word.config(
+                        text="longest word: " + current_word)
+
                 self.__words_list.insert(0, current_word)
                 self.__clear_word()  # Clear word on display
 
