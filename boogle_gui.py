@@ -324,6 +324,8 @@ class BoogleGUI:
             if self.__start_button.cget("text") == "START":
                 self.__start_button.config(text="RESET")
 
+            self.__update_best_score()  # Update best score
+
             self.__create_timer()
             self.__clear_word()
             self.__create_letters_buttons()
@@ -364,7 +366,9 @@ class BoogleGUI:
 
                 self.__words_list.insert(0, current_word)
 
-            self.__clear_word()
+                # Clear word on display and update best score
+                self.__clear_word()
+                self.__update_best_score()
 
         # Handling events
         self.__submit_button.bind("<Button-1>",
