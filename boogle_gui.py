@@ -3,7 +3,6 @@ import tkinter as tk
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
-import pygame
 
 # Constants
 BOARD_ROWS = 4
@@ -17,7 +16,6 @@ BUTTON_STYLE = {"borderwidth": 1,
                 "bg": REGULAR_COLOR,
                 "activebackground": BUTTON_ACTIVE_COLOR}
 LABEL_STYLE = {"bg": REGULAR_COLOR}
-
 
 
 class BoogleGUI:
@@ -112,7 +110,6 @@ class BoogleGUI:
                        self.__best_score, self.__longest_word]:
             widget.config(font=("Courier", label_font_size))
 
-
     def __configure_finished_game_window(self, event):
         """
         The function configures the window size and adjust button font size
@@ -134,7 +131,6 @@ class BoogleGUI:
 
         self.__configure_window(event)
 
-        
     def __configure_board(self):
         """ The function Configures board frame (for letters buttons) """
         for row in range(BOARD_ROWS):
@@ -322,7 +318,6 @@ class BoogleGUI:
             self.__create_letters_buttons()
             self.__score.config(text="score: 0")
             self.__reset_words_list()
-            self.__end_game.stop()
 
         # Handling events
         self.__start_button.bind("<Button-1>", click_on_start)  # Click start
@@ -357,9 +352,6 @@ class BoogleGUI:
                         (current_score + int(total_score))))
 
                 self.__words_list.insert(0, current_word)
-                self.__word_found_sound.play()
-            else:
-                self.__wrong_world.play()
 
             self.__clear_word()
 
@@ -392,22 +384,6 @@ class BoogleGUI:
         self.__clear_button.bind("<Leave>",  # Leave widget area
                                  lambda event: self.__clear_button.config(
                                      bg=REGULAR_COLOR))
-
-    def __create_close_button(self):
-        """ The function creates close button which is close the window """
-        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
-                           **BUTTON_STYLE)
-        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
-
-        def click_on_close(event):
-            self.__window.destroy()
-
-        # Handling events
-        self.__close_button.bind("<Button-1>", click_on_close)  # Click on submit
-        self.__close_button.bind("<Enter>",  # Get over button
-                    lambda event: self.__close_button.config(bg=BUTTON_HOVER_COLOR))
-        self.__close_button.bind("<Leave>",  # Leave widget area
-                    lambda event: self.__close_button.config(bg=REGULAR_COLOR))
 
     def __present_time(self, minutes, seconds):
         """
@@ -538,25 +514,28 @@ class BoogleGUI:
 
     def __close_window(self):
         """ The function show messagebox and closes the window """
-        self.__end_game.stop()
         self.__goodbye_window()
         self.__window.destroy()
 
     def __create_close_button(self):
         """ The function creates close button which is close the window """
-        button = tk.Button(self.__outer_frame, text="CLOSE",
-                           **BUTTON_STYLE)
-        button.place(relheight=0.05, relwidth=0.1, relx=0.9, rely=0.0)
+        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
+                                        **BUTTON_STYLE)
+        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9,
+                                  rely=0.0)
 
         def click_on_close(event):
             self.__window.destroy()
 
         # Handling events
-        button.bind("<Button-1>", click_on_close)  # Click on submit
-        button.bind("<Enter>",  # Get over button
-                    lambda event: button.config(bg=BUTTON_HOVER_COLOR))
-        button.bind("<Leave>",  # Leave widget area
-                    lambda event: button.config(bg=REGULAR_COLOR))
+        self.__close_button.bind("<Button-1>",
+                                 click_on_close)  # Click on submit
+        self.__close_button.bind("<Enter>",  # Get over button
+                                 lambda event: self.__close_button.config(
+                                     bg=BUTTON_HOVER_COLOR))
+        self.__close_button.bind("<Leave>",  # Leave widget area
+                                 lambda event: self.__close_button.config(
+                                     bg=REGULAR_COLOR))
 
     def run(self):
         """ The function runs the game """
