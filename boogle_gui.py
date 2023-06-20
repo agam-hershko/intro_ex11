@@ -24,9 +24,11 @@ class BoogleGUI:
     on the screen """
 
     def __init__(self):
-        root = tk.Tk()
+        root = tk.Tk()  # Create window from tk
         self.__window = root
-        root.title("Boogle")
+        # While press window's close button, activate closing protocol
+        root.protocol("WM_DELETE_WINDOW", self.__close_window)
+        root.title("Boogle")  # Title the window`
 
         # Creating outer frame which contains all objects
         self.__outer_frame = tk.Frame(root, bg=REGULAR_COLOR,
@@ -481,8 +483,7 @@ class BoogleGUI:
                                rely=0.7)
 
         def click_on_no(event):
-            # Todo- add pop window with message and total score (also in close)
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
         self.__no_button.bind("<Button-1>", click_on_no)  # Click on submit
@@ -559,7 +560,7 @@ class BoogleGUI:
                                   rely=0.0)
 
         def click_on_close(event):
-            self.__window.destroy()
+            self.__close_window()
 
         # Handling events
         self.__close_button.bind("<Button-1>",
