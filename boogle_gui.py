@@ -365,10 +365,7 @@ class BoogleGUI:
                         (current_score + int(total_score))))
 
                 self.__words_list.insert(0, current_word)
-
-                # Clear word on display and update best score
-                self.__clear_word()
-                self.__update_best_score()
+                self.__clear_word()  # Clear word on display
 
         # Handling events
         self.__submit_button.bind("<Button-1>",
@@ -503,7 +500,10 @@ class BoogleGUI:
         self.__start_button.config(state="disabled")
         self.__submit_button.config(state="disabled")
         self.__clear_button.config(state="disabled")
+
+        # Clear word on display and update best score
         self.__clear_word()
+        self.__update_best_score()
 
         # Create label with information of ending game
         self.__game_message = tk.Label(self.__board, **LABEL_STYLE)
