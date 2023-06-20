@@ -1,5 +1,6 @@
 # Imports
 import tkinter as tk
+import tkinter.messagebox
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
