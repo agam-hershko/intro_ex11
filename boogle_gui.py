@@ -553,7 +553,30 @@ class BoogleGUI:
             self.__best_score.config(
                 text="best score: " + str(current_score))
 
+    def __create_game_message(self):
+        """ Creating label with information of ending game """
+        self.__game_message = tk.Label(self.__board_frame, **LABEL_STYLE)
+        self.__game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
+                                  rely=0.1)
+
+        self.__game_message.config(text="The game was ended")
+
+    def __create_last_score(self):
+        """ Creating label with information of score in last game """
+        self.__last_score = tk.Label(self.__board_frame, **LABEL_STYLE)
+        self.__last_score.config(text=self.__score.cget("text"))
+        self.__last_score.place(relheight=0.15, relwidth=0.2, relx=0.4,
+                                rely=0.4)
+
+    def __create_new_game_label(self):
+        """ Creating label with question about new game """
+        self.__new_game = tk.Label(self.__board_frame, **LABEL_STYLE)
+        self.__new_game.place(relheight=0.15, relwidth=0.5, relx=0.1,
+                              rely=0.7)
+        self.__new_game.config(text="Do you want to play again?")
+
     def __finish_the_game(self):
+        # Reinitialize board frame
         self.__board_frame = tk.Frame(self.__outer_frame)
         self.__board_frame.place(relheight=0.6, relwidth=0.6, relx=0.1,
                                  rely=0.3)
@@ -567,27 +590,15 @@ class BoogleGUI:
         self.__clear_word()
         self.__update_best_score()
 
-        # Create label with information of ending game
-        self.__game_message = tk.Label(self.__board_frame, **LABEL_STYLE)
-        self.__game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
-                                  rely=0.1)
-        self.__game_message.config(text="The game is finish")
-
-        # Creating label with information of score in last game
-        self.__last_score = tk.Label(self.__board_frame, **LABEL_STYLE)
-        self.__last_score.config(text=self.__score.cget("text"))
-        self.__last_score.place(relheight=0.15, relwidth=0.2, relx=0.4,
-                                rely=0.4)
-
-        # Creating label with question about new game
-        self.__new_game = tk.Label(self.__board_frame, **LABEL_STYLE)
-        self.__new_game.place(relheight=0.15, relwidth=0.5, relx=0.1,
-                              rely=0.7)
-        self.__new_game.config(text="Do you want to play again?")
-        # Create buttons to answer the question
+        # Create board objects
+        self.__create_game_message()
+        self.__create_last_score()
+        self.__create_new_game_label()
+        # Create buttons to answer the question (about new game)
         self.__create_yes_button()
         self.__create_no_button()
 
+        # Configure the window
         self.__window.bind("<Configure>",
                            self.__configure_finished_game_window)
 
