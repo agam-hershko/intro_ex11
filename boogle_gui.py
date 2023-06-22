@@ -361,11 +361,12 @@ class BoogleGUI:
                 self.__start_button.config(text="RESET")
 
             self.__update_best_score()
-            self.__activate__timer()
             self.__clear_word()
+            self.__reset_words_list()
+            self.__activate__timer()
+            self.__current_board = randomize_board(LETTERS)  # Reset board
             self.__create_letters_buttons()
             self.__score.config(text="score: 0")  # Init the score
-            self.__reset_words_list()
 
         # Handling events
         self.__start_button.bind("<Button-1>", click_on_start)  # Click start
@@ -445,7 +446,7 @@ class BoogleGUI:
 
         # Handling events
         self.__clear_button.bind("<Button-1>",  # Click on clear button
-                                 lambda event: self.__clear_word)
+                                 lambda event: self.__clear_word())
         self.__clear_button.bind("<Enter>",  # Get over button
                                  lambda event: self.__clear_button.config(
                                      bg=BUTTON_HOVER_COLOR))
@@ -505,6 +506,7 @@ class BoogleGUI:
         def click_on_yes(_):
             # Recreate board
             self.__configure_board()
+            self.__current_board = randomize_board(LETTERS)  # Reset board
             self.__create_letters_buttons()
 
             # Reactivate buttons
@@ -534,7 +536,7 @@ class BoogleGUI:
 
         # Handling events
         self.__no_button.bind("<Button-1>",  # Click on no button
-                              lambda event: self.__close_window)
+                              lambda event: self.__close_window())
         self.__no_button.bind("<Enter>",  # Get over button
                               lambda event: self.__no_button.config(
                                   bg=BUTTON_HOVER_COLOR))
@@ -610,8 +612,8 @@ class BoogleGUI:
                                   rely=0.0)
 
         # Handling events
-        self.__close_button.bind("<Button-1>",  # Click on close
-                                 lambda event: self.__close_window)
+        self.__close_button.bind("<Button-1>",  # Click on close button
+                                 lambda event: self.__close_window())
         self.__close_button.bind("<Enter>",  # Get over button
                                  lambda event: self.__close_button.config(
                                      bg=BUTTON_HOVER_COLOR))
