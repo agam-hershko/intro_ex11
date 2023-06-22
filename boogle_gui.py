@@ -262,6 +262,15 @@ class BoogleGUI:
                         == self.__letters_in_board[row][col]:
                     return row, col
 
+    def __create_empty_letters_buttons(self) -> None:
+        """
+        The function create empty buttons for preview before playing
+        and appends them to GUI
+        """
+        for row in range(BOARD_ROWS):
+            for col in range(BOARD_COLS):
+                self.__create_empty_button(row, col)
+
     def __create_letter_button(self, row: int, col: int,
                                content: str = "") -> None:
         """
@@ -281,17 +290,20 @@ class BoogleGUI:
                 if (self.__letters_in_word
                         and button != self.__letters_in_word[-1]):
                     return None
+
                 else:  # If click on the last clicked button, unclick it
                     button.config(bg=REGULAR_COLOR)
                     # If letters were be chosen, removing current button
                     if self.__letters_in_word:
                         self.__letters_in_word.pop()
+
                     # Able clicks around the current button and disable clicks
                     # around last buttons (if letters were be chosen)
                     self.__able_clicks_around(row, col)
                     if self.__get_last_button_coors():
                         last_row, last_col = self.__get_last_button_coors()
                         self.__disable_invalid_clicks(last_row, last_col)
+
             else:  # If button is not clicked
                 button.config(bg=BUTTON_ACTIVE_COLOR)
                 self.__disable_invalid_clicks(row, col)
@@ -303,42 +315,32 @@ class BoogleGUI:
 
         # Handling events
         button.bind("<Button-1>", click_on_letter)  # Click on submit
+
         # Get over button, change background if button is not clicked
         button.bind("<Enter>",
                     lambda event: button.config(
                         bg=BUTTON_HOVER_COLOR) if button.cget(
                         "bg") != BUTTON_ACTIVE_COLOR else button.config(
                         bg=BUTTON_ACTIVE_COLOR))
+
         # Leave widget area,  change background if button is not clicked
         button.bind("<Leave>", lambda event: button.config(
             bg=REGULAR_COLOR) if button.cget(
             "bg") != BUTTON_ACTIVE_COLOR else button.config(
             bg=BUTTON_ACTIVE_COLOR))
 
-    def __create_empty_letters_buttons(self) -> None:
-        """
-        The function create empty buttons for preview before playing
-        and appends them to GUI
-        """
-        for row in range(BOARD_ROWS):
-            for col in range(BOARD_COLS):
-                self.__create_empty_button(row, col)
-
     def __create_letters_buttons(self) -> None:
         """
         The function create letters buttons with randomized letters
         and appends them to GUI
         """
-        # Creating 2D list of random letters (using randomizer file)
-        board = self.__current_board
-
-        # Creating buttons
         for row in range(BOARD_ROWS):
             for col in range(BOARD_COLS):
-                self.__create_letter_button(row, col, board[row][col])
+                self.__create_letter_button(row, col,
+                                            self.__current_board[row][col])
 
     def __reset_words_list(self):
-        """ The function resets the words list"""
+        """ The function resets the words list """
         self.__words_list.delete(0, tk.END)
 
     def __create_start_button(self):
@@ -358,12 +360,11 @@ class BoogleGUI:
             if self.__start_button.cget("text") == "START":
                 self.__start_button.config(text="RESET")
 
-            self.__update_best_score()  # Update best score
-
+            self.__update_best_score()
             self.__activate__timer()
             self.__clear_word()
             self.__create_letters_buttons()
-            self.__score.config(text="score: 0")
+            self.__score.config(text="score: 0")  # Init the score
             self.__reset_words_list()
 
         # Handling events
@@ -375,6 +376,28 @@ class BoogleGUI:
                                  lambda event: self.__start_button.config(
                                      bg=REGULAR_COLOR))
 
+    def __update_scores(self, current_word):
+        """ The function gets current word and updates scores: game score and
+        total score """
+        current_score = len(current_word) ** 2
+        score = int(self.__score.cget("text").split(":")[1])
+        self.__score.config(
+            text="score: " + str(current_score + score))
+
+        total_score = int(
+            self.__total_score.cget("text").split(":")[1])
+        self.__total_score.config(
+            text="total score: " + str(current_score + total_score))
+
+    def __update_longest_word(self, current_word):
+        """ The function gets the current word and updates the longest word
+         (first in this length) """
+        longest_word = self.__longest_word.cget("text").split(": ")[1]
+
+        if len(current_word) > len(longest_word):
+            self.__longest_word.config(
+                text="longest word: " + current_word)
+
     def __create_submit_button(self):
         """ The function creates submit button """
         self.__submit_button = tk.Button(self.__outer_frame, text="SUBMIT",
@@ -384,33 +407,22 @@ class BoogleGUI:
 
         def click_on_submit(_):
             current_word = self.__get_word_from_letters()
-            words = self.__all_words
 
-            if current_word in words \
+            if current_word in self.__all_words \
                     and current_word not in \
-                    self.__words_list.get(0, "end"):  # If word not in list
+                    self.__words_list.get(0, "end"):  # If word wasn't found
 
-                # Updating scores
-                current_score = len(current_word) ** 2
-                score = int(self.__score.cget("text").split(":")[1])
-                self.__score.config(
-                    text="score: " + str(current_score + score))
-                total_score = int(
-                    self.__total_score.cget("text").split(":")[1])
-                self.__total_score.config(
-                    text="total score: " + str(current_score + total_score))
+                # If we find all words, stop the timer
                 if int(self.__score.cget("text").split(":")[
                            1].strip()) == get_max_score(self.__current_board,
                                                         self.__all_words):
                     self.__is_timer_active = False
-                # Updating the longest word (first in this length)
-                longest_word = self.__longest_word.cget("text").split(": ")[1]
-                if len(current_word) > len(longest_word):
-                    self.__longest_word.config(
-                        text="longest word: " + current_word)
 
                 # Insert score to words list
                 self.__words_list.insert(0, current_word)
+                # Update score and longest word with current word
+                self.__update_scores(current_word)
+                self.__update_longest_word(current_word)
 
             self.__clear_word()
 
@@ -431,12 +443,9 @@ class BoogleGUI:
         self.__clear_button.place(relheight=0.05, relwidth=0.1, relx=0.6,
                                   rely=0.2)
 
-        def click_on_clear(_):
-            self.__clear_word()
-
         # Handling events
-        self.__clear_button.bind("<Button-1>",
-                                 click_on_clear)  # Click on submit
+        self.__clear_button.bind("<Button-1>",  # Click on clear button
+                                 lambda event: self.__clear_word)
         self.__clear_button.bind("<Enter>",  # Get over button
                                  lambda event: self.__clear_button.config(
                                      bg=BUTTON_HOVER_COLOR))
@@ -482,7 +491,7 @@ class BoogleGUI:
                     self.__timer.after(1000, update_timer)
             else:
                 self.__finish_the_game()
-                self.__is_timer_active = True
+                self.__is_timer_active = True  # Reactivate the timer
 
         self.__start_time = time.time()
         update_timer()
@@ -497,17 +506,19 @@ class BoogleGUI:
             # Recreate board
             self.__configure_board()
             self.__create_letters_buttons()
-            # Activate buttons
+
+            # Reactivate buttons
             self.__start_button.config(state="normal")
             self.__submit_button.config(state="normal")
             self.__clear_button.config(state="normal")
+
             # Reset game objects
             self.__activate__timer()
             self.__score.config(text="score: 0")
             self.__reset_words_list()
 
         # Handling events
-        self.__yes_button.bind("<Button-1>", click_on_yes)  # Click on submit
+        self.__yes_button.bind("<Button-1>", click_on_yes)  # Click on yes
         self.__yes_button.bind("<Enter>",  # Get over button
                                lambda event: self.__yes_button.config(
                                    bg=BUTTON_HOVER_COLOR))
@@ -521,11 +532,9 @@ class BoogleGUI:
         self.__no_button.place(relheight=0.15, relwidth=0.1, relx=0.8,
                                rely=0.7)
 
-        def click_on_no(_):
-            self.__close_window()
-
         # Handling events
-        self.__no_button.bind("<Button-1>", click_on_no)  # Click on submit
+        self.__no_button.bind("<Button-1>",  # Click on no button
+                              lambda event: self.__close_window)
         self.__no_button.bind("<Enter>",  # Get over button
                               lambda event: self.__no_button.config(
                                   bg=BUTTON_HOVER_COLOR))
@@ -589,7 +598,7 @@ class BoogleGUI:
 
     def __close_window(self):
         """ The function show messagebox and closes the window """
-        self.__is_timer_active = False
+        self.__is_timer_active = False  # Stop the timer
         self.__goodbye_window()
         self.__window.destroy()
 
@@ -600,12 +609,9 @@ class BoogleGUI:
         self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9,
                                   rely=0.0)
 
-        def click_on_close(_):
-            self.__close_window()
-
         # Handling events
-        self.__close_button.bind("<Button-1>",
-                                 click_on_close)  # Click on submit
+        self.__close_button.bind("<Button-1>",  # Click on close
+                                 lambda event: self.__close_window)
         self.__close_button.bind("<Enter>",  # Get over button
                                  lambda event: self.__close_button.config(
                                      bg=BUTTON_HOVER_COLOR))
