@@ -4,11 +4,13 @@ import tkinter.messagebox
 from boggle_board_randomizer import randomize_board, LETTERS
 from file_handler import create_set
 import time
+from ex11_utils import *
 
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
-TIME_IN_SECS = 180
+TIME_IN_SECS = 11
+# Design Constants
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
 BUTTON_ACTIVE_COLOR = 'gray25'
@@ -94,6 +96,9 @@ class BoogleGUI:
         self.__create_clear_button()
         self.__create_close_button()
         self.__window.bind("<Configure>", self.__configure_window)
+        self.__all_words = create_set("boggle_dict.txt")
+        self.__current_board = randomize_board(LETTERS)
+        self.__timer_activate = True
 
     def __configure_window(self, event):
         """
@@ -298,7 +303,7 @@ class BoogleGUI:
         and appends them to GUI
         """
         # Creating 2D list of random letters (using randomizer file)
-        board = randomize_board(LETTERS)
+        board = self.__current_board
 
         # Creating buttons
         for row in range(BOARD_ROWS):
@@ -352,7 +357,7 @@ class BoogleGUI:
 
         def click_on_submit(event):
             current_word = self.__get_word_from_letters()
-            words = create_set("boggle_dict.txt")
+            words = self.__all_words
 
             if current_word in words \
                     and current_word not in \
@@ -367,7 +372,10 @@ class BoogleGUI:
                     self.__total_score.cget("text").split(":")[1])
                 self.__total_score.config(
                     text="total score: " + str(current_score + total_score))
-
+                if int(self.__score.cget("text").split(":")[
+                           1].strip()) == get_max_score(self.__current_board,
+                                                        self.__all_words):
+                    self.__timer_activate = False
                 # Updating the longest word (first in this length)
                 longest_word = self.__longest_word.cget("text").split(": ")[1]
                 if len(current_word) > len(longest_word):
@@ -423,8 +431,10 @@ class BoogleGUI:
             if seconds < 10:
                 seconds = "0" + str(seconds)
 
-        self.__timer.config(
-            text=f"Timer: {minutes}:{seconds}")
+        if minutes == 0 and int(seconds) <= 10:
+            self.__timer.config(text=f"Timer: {minutes}:{seconds}", fg="red")
+        else:
+            self.__timer.config(text=f"Timer: {minutes}:{seconds}", fg="black")
 
     def __create_timer(self):
         """ Update the timer to present time and to stop after 3 minutes """
@@ -441,9 +451,11 @@ class BoogleGUI:
             self.__present_time(minutes_left, secs_left)
 
             if elapsed_time < TIME_IN_SECS:  # Stop the timer after 3 minutes
-                self.__timer.after(1000, update_timer)
+                if self.__timer_activate:
+                    self.__timer.after(1000, update_timer)
             else:
                 self.__finish_the_game()
+                self.__timer_activate = True
 
         self.__start_time = time.time()
         update_timer()
@@ -482,7 +494,7 @@ class BoogleGUI:
         self.__no_button.place(relheight=0.15, relwidth=0.1, relx=0.8,
                                rely=0.7)
 
-        def click_on_no(event):
+        def click_on_no(_):
             self.__close_window()
 
         # Handling events
@@ -520,7 +532,7 @@ class BoogleGUI:
         self.__game_message = tk.Label(self.__board, **LABEL_STYLE)
         self.__game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
                                   rely=0.1)
-        self.__game_message.config(text="Your time is up!")
+        self.__game_message.config(text="The game is finish")
 
         # Creating label with information of score in last game
         self.__last_score = tk.Label(self.__board, **LABEL_STYLE)
@@ -549,6 +561,7 @@ class BoogleGUI:
 
     def __close_window(self):
         """ The function show messagebox and closes the window """
+        self.__timer_activate = False
         self.__goodbye_window()
         self.__window.destroy()
 
