@@ -1,4 +1,4 @@
-def create_set(index_file):
+def create_words_set(index_file):
     """
     create a set of all the words in the index file
     """
