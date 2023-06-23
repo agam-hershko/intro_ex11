@@ -1,6 +1,7 @@
 #################################################################
 # FILE : ex11_utils.py
-# WRITER : agam hershko, id_214193831 , 214193831
+# WRITERS : 1) Agam Hershko Dekel, id_214193831 , 214193831
+#           2) Itzhak Fagebaume, itzhakfage, 666225701
 # EXERCISE : intro2cs2 ex11 2023
 # DESCRIPTION: A program that implements methods of Boogle game
 # STUDENTS I DISCUSSED THE EXERCISE WITH: -
