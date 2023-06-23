@@ -9,11 +9,13 @@
 
 # Typing
 from typing import *
+
 Board = List[List[str]]
+Coor = Tuple[int, int]
 Path = List[Tuple[int, int]]
 
 
-def get_max_score(board, words):
+def get_max_score(board: Board, words: Set[str]) -> int:
     """
     The function returns the max score in a game for the board
     """
@@ -23,14 +25,15 @@ def get_max_score(board, words):
     return max_score
 
 
-def get_distance(coor1, coor2):
+def get_distance(coor1: Coor, coor2: Coor) -> Coor:
     """
     Calculate the distance between two coordinates
     """
     return abs(coor1[0] - coor2[0]), abs(coor1[1] - coor2[1])
 
 
-def is_valid_path(board, path, words):
+def is_valid_path(board: Board, path: Path, words: Iterable[str]) \
+        -> Optional[str]:
     """
     Check if a given path on the board is valid
     """
@@ -63,7 +66,8 @@ def is_valid_path(board, path, words):
     return word if word in words else None
 
 
-def add_letter(board, y: int, x: int, path):
+def add_letter(board, y: int, x: int, path: Path) \
+        -> Iterator[Tuple[Path, Tuple[int, int]]]:
     """
     Generator to yield coordinates and paths of adjacent letters on the board
     """
@@ -76,7 +80,8 @@ def add_letter(board, y: int, x: int, path):
             path.pop()
 
 
-def helper_find(n, board, words, x, y, path):
+def helper_find(n: Set[int], board: Board, words: Iterable[str], x: int,
+                y: int, path: Path) -> Iterator[Path]:
     """
     Recursive helper function to find all paths of length n on the board
     """
@@ -98,7 +103,8 @@ def helper_find(n, board, words, x, y, path):
         yield from helper_find(n, board, words, row, col, path)
 
 
-def find_all_length_n_paths(n: Set[int], board, words):
+def find_all_length_n_paths(n: Set[int], board: Board, words: Iterable[str])\
+        -> Iterator[Path]:
     """
     Find all paths of length n on the board
     """
@@ -110,7 +116,8 @@ def find_all_length_n_paths(n: Set[int], board, words):
                                     [(index_row, index_col)]))
 
 
-def find_length_n_paths(n: int, board, words):
+def find_length_n_paths(n: int, board: Board, words: Iterable[str]) \
+        -> List[Path]:
     """
     Find all paths of length n on the board that form valid words
     """
@@ -120,7 +127,8 @@ def find_length_n_paths(n: int, board, words):
     return ans
 
 
-def helper_find_word(n, board, words, x, y, path):
+def helper_find_word(n: int, board: Board, words: Iterable[str], x: int,
+                     y: int, path: Path) -> Iterator[Path]:
     """
     Recursive helper function to find all paths of length n on the board that
     form valid words
@@ -145,7 +153,8 @@ def helper_find_word(n, board, words, x, y, path):
             yield from helper_find_word(n, board, words, row, col, path)
 
 
-def find_all_length_n_words(n: int, board, words):
+def find_all_length_n_words(n: int, board: Board, words: Iterable[str]) \
+        -> Iterator[Path]:
     """
     Find all paths of length n on the board that form valid words
     """
@@ -155,7 +164,7 @@ def find_all_length_n_words(n: int, board, words):
                                          [(index_row, index_col)]))
 
 
-def find_length_n_words(n: int, board: Board, words: Iterable[str])\
+def find_length_n_words(n: int, board: Board, words: Iterable[str]) \
         -> List[Path]:
     """
     Find all paths of length n on the board that form valid words
@@ -167,7 +176,7 @@ def find_length_n_words(n: int, board: Board, words: Iterable[str])\
     return ans
 
 
-def create_word(path, board):
+def create_word(path: Path, board: Board) -> str:
     """
     Create a word from a given path on the board
     """
