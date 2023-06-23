@@ -9,7 +9,7 @@ from ex11_utils import *
 # Constants
 BOARD_ROWS = 4
 BOARD_COLS = 4
-TIME_IN_SECS = 11
+TIME_IN_SECS = 180
 # Design Constants
 BUTTON_HOVER_COLOR = 'gray'
 REGULAR_COLOR = 'lightgray'
@@ -28,7 +28,6 @@ BUTTONS_DIVISOR = 40
 class BoogleGUI:
     """ Class that implements gui of boogle game and has attributes of objects
     on the screen """
-
     def __init__(self):
         self.__window = tk.Tk()  # Create window from tk
         # While press window's close button, activate closing protocol
@@ -152,7 +151,7 @@ class BoogleGUI:
             self.__board_frame.columnconfigure(col, weight=1)
 
     def __create_found_words(self):
-        """ Creating list of founded words and scrollbar """
+        """ Creating list of found words and scrollbar """
         self.__words_list = tk.Listbox(self.__outer_frame, **LABEL_STYLE)
         self.__words_list.place(relheight=0.6, relwidth=0.2, relx=0.75,
                                 rely=0.3)
@@ -399,6 +398,12 @@ class BoogleGUI:
             self.__longest_word.config(
                 text="longest word: " + current_word)
 
+    def __were_all_words_found(self):
+        """ The function gets if all words were found"""
+        return int(self.__score.cget("text").split(":")[
+                       1].strip()) == get_max_score(self.__current_board,
+                                                    self.__all_words)
+
     def __create_submit_button(self):
         """ The function creates submit button """
         self.__submit_button = tk.Button(self.__outer_frame, text="SUBMIT",
@@ -412,18 +417,16 @@ class BoogleGUI:
             if current_word in self.__all_words \
                     and current_word not in \
                     self.__words_list.get(0, "end"):  # If word wasn't found
-
-                # If we find all words, stop the timer
-                if int(self.__score.cget("text").split(":")[
-                           1].strip()) == get_max_score(self.__current_board,
-                                                        self.__all_words):
-                    self.__is_timer_active = False
-
                 # Insert score to words list
                 self.__words_list.insert(0, current_word)
                 # Update score and longest word with current word
                 self.__update_scores(current_word)
                 self.__update_longest_word(current_word)
+
+                # If we find all words, finish the game and stop timer
+                if self.__were_all_words_found():
+                    self.__is_timer_active = False
+                    self.__finish_the_game()
 
             self.__clear_word()
 
@@ -452,6 +455,23 @@ class BoogleGUI:
                                      bg=BUTTON_HOVER_COLOR))
         self.__clear_button.bind("<Leave>",  # Leave widget area
                                  lambda event: self.__clear_button.config(
+                                     bg=REGULAR_COLOR))
+
+    def __create_close_button(self):
+        """ The function creates close button which is close the window """
+        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
+                                        **BUTTON_STYLE)
+        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9,
+                                  rely=0.0)
+
+        # Handling events
+        self.__close_button.bind("<Button-1>",  # Click on close button
+                                 lambda event: self.__close_window())
+        self.__close_button.bind("<Enter>",  # Get over button
+                                 lambda event: self.__close_button.config(
+                                     bg=BUTTON_HOVER_COLOR))
+        self.__close_button.bind("<Leave>",  # Leave widget area
+                                 lambda event: self.__close_button.config(
                                      bg=REGULAR_COLOR))
 
     def __present_time(self, minutes, seconds):
@@ -492,7 +512,6 @@ class BoogleGUI:
                     self.__timer.after(1000, update_timer)
             else:
                 self.__finish_the_game()
-                self.__is_timer_active = True  # Reactivate the timer
 
         self.__start_time = time.time()
         update_timer()
@@ -515,9 +534,11 @@ class BoogleGUI:
             self.__clear_button.config(state="normal")
 
             # Reset game objects
-            self.__activate__timer()
             self.__score.config(text="score: 0")
             self.__reset_words_list()
+            # Reactivate timer
+            self.__is_timer_active = True
+            self.__activate__timer()
 
         # Handling events
         self.__yes_button.bind("<Button-1>", click_on_yes)  # Click on yes
@@ -556,10 +577,13 @@ class BoogleGUI:
     def __create_game_message(self):
         """ Creating label with information of ending game """
         self.__game_message = tk.Label(self.__board_frame, **LABEL_STYLE)
-        self.__game_message.place(relheight=0.15, relwidth=0.3, relx=0.35,
+        self.__game_message.place(relheight=0.15, relwidth=0.4, relx=0.3,
                                   rely=0.1)
 
-        self.__game_message.config(text="The game was ended")
+        if self.__were_all_words_found():
+            self.__game_message.config(text="All words were found!")
+        else:  # The only other option for game finishing is if time's up
+            self.__game_message.config(text="Time is up!")
 
     def __create_last_score(self):
         """ Creating label with information of score in last game """
@@ -614,23 +638,6 @@ class BoogleGUI:
         self.__is_timer_active = False  # Stop the timer
         self.__goodbye_window()
         self.__window.destroy()
-
-    def __create_close_button(self):
-        """ The function creates close button which is close the window """
-        self.__close_button = tk.Button(self.__outer_frame, text="CLOSE",
-                                        **BUTTON_STYLE)
-        self.__close_button.place(relheight=0.05, relwidth=0.1, relx=0.9,
-                                  rely=0.0)
-
-        # Handling events
-        self.__close_button.bind("<Button-1>",  # Click on close button
-                                 lambda event: self.__close_window())
-        self.__close_button.bind("<Enter>",  # Get over button
-                                 lambda event: self.__close_button.config(
-                                     bg=BUTTON_HOVER_COLOR))
-        self.__close_button.bind("<Leave>",  # Leave widget area
-                                 lambda event: self.__close_button.config(
-                                     bg=REGULAR_COLOR))
 
     def run(self):
         """ The function runs the game """
