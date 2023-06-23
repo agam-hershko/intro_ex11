@@ -1,2 +1,43 @@
-# intro_ex11
-implementing Boggle game with GUI using Python
+# Boogle Game
+
+This project is a graphical implementation of the popular word game "Boggle".
+The game is played on a 4x4 grid of letter buttons, and the player's goal is to
+ find as many valid English words as possible within a given time limit.
+
+## Features:
+- Randomized letter board: The game generates a new random board of letters
+  for each round.
+- Interactive GUI: The graphical user interface allows players to select
+  letters, form words, and submit them.
+- Word validation: The game verifies if the submitted words are valid English
+  words using a dictionary (boggle_dict.txt).
+- Scoring: Points are awarded based on the length of the submitted words.
+- Timer: The game includes a countdown timer to add a time pressure element.
+  The timer turns red when time is running out.
+- Word tracking: The game displays a list of found words, the current word
+  being formed, and the player's score.
+- Best score tracking: The game keeps track of the best score achieved in
+  previous rounds.
+- Longest word tracking: The game displays the longest word found during the
+  current round.
+- Button highlighting: The color of a letter button changes when the player
+  hovers over it, providing visual feedback.
+- Button deselecting: Clicking on a selected letter button again deselects it,
+  allowing players to change their selection.
+
+## How to Play:
+1. Click on letter buttons to form words. The selected letters must be
+   adjacent to each other.
+2. Click the "Submit" button to submit a word.
+3. Valid words will be added to the list, and the score will be updated.
+4. Use the "Clear" button to reset the current word.
+5. Click the "Start" (changed to "Reset" button to start a new game or reset
+   the current game.
+5. The game ends when the time runs out, and the final score is displayed.
+6. Click on "Yes" button if you want to start a new game.
+7. If game ending was selected by clicking on "No" or clicking on "Close"
+   button, a message box with the total score will be displayed and the game
+   will be ended.
+
+Enjoy playing Boogle and challenge yourself to find as many words as possible
+within the time limit!
