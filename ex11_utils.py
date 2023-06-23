@@ -1,5 +1,14 @@
-from typing import *
+#################################################################
+# FILE : ex11_utils.py
+# WRITER : agam hershko, id_214193831 , 214193831
+# EXERCISE : intro2cs2 ex11 2023
+# DESCRIPTION: A program that implements methods of Boogle game
+# STUDENTS I DISCUSSED THE EXERCISE WITH: -
+# NOTES: -
+#################################################################
 
+# Typing
+from typing import *
 Board = List[List[str]]
 Path = List[Tuple[int, int]]
 

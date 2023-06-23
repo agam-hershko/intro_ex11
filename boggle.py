@@ -1,3 +1,12 @@
+#################################################################
+# FILE : boggle.py
+# WRITER : agam hershko, id_214193831 , 214193831
+# EXERCISE : intro2cs2 ex11 2023
+# DESCRIPTION: A program that implements GUI of Boogle game
+# STUDENTS I DISCUSSED THE EXERCISE WITH: -
+# NOTES: -
+#################################################################
+
 # Imports
 import tkinter as tk
 import tkinter.messagebox

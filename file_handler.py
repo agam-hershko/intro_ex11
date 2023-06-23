@@ -1,3 +1,12 @@
+#################################################################
+# FILE : file_handler.py
+# WRITER : agam hershko, id_214193831 , 214193831
+# EXERCISE : intro2cs2 ex11 2023
+# DESCRIPTION: A program that implements handling text files
+# STUDENTS I DISCUSSED THE EXERCISE WITH: -
+# NOTES: -
+#################################################################
+
 def create_words_set(index_file):
     """
     create a set of all the words in the index file
